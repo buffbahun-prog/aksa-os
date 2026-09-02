@@ -1,4 +1,4 @@
-import type { Bit, Bit32, Bit5 } from "../types";
+import type { Bit, Bit2, Bit3, Bit32, Bit4, Bit5, Bit8 } from "../types";
 import { andGate, andGateNInp, inverter, orGate, orGateNInp } from "./gates";
 
 export function mux2To1(inp0: Bit, inp1: Bit, select: Bit) {
@@ -185,6 +185,76 @@ export function mux32To1(data: Bit32, selectBits: Bit5): Bit {
         // for select value 11111, nothing need to be inverted
         andGateNInp([
             data[31],
+            ...selectBits,
+        ]),
+    ]);
+}
+
+export function mux8To1(data: Bit8, selectBits: Bit3): Bit {
+    return orGateNInp([
+        // for select value 000
+        andGateNInp([
+            data[0],
+            ...selectBits.map(bit => inverter(bit)),
+        ]),
+        // for select value 001
+        andGateNInp([
+            data[1],
+            ...selectBits.map((bit, indx) => indx !== 2 ? inverter(bit) : bit),
+        ]),
+        // for select value 010
+        andGateNInp([
+            data[2],
+            ...selectBits.map((bit, indx) => indx !== 1 ? inverter(bit) : bit),
+        ]),
+        // for select value 011
+        andGateNInp([
+            data[3],
+            ...selectBits.map((bit, indx) => indx !== 1 && indx !== 2 ? inverter(bit) : bit),
+        ]),
+        // for select value 100
+        andGateNInp([
+            data[4],
+            ...selectBits.map((bit, indx) => indx !== 0 ? inverter(bit) : bit),
+        ]),
+        // for select value 101
+        andGateNInp([
+            data[5],
+            ...selectBits.map((bit, indx) => indx !== 0 && indx !== 2 ? inverter(bit) : bit),
+        ]),
+        // for select value 110
+        andGateNInp([
+            data[6],
+            ...selectBits.map((bit, indx) => indx !== 0 && indx !== 1 ? inverter(bit) : bit),
+        ]),
+        // for select value 111
+        andGateNInp([
+            data[7],
+            ...selectBits,
+        ]),
+    ]);
+}
+
+export function mux4To1(data: Bit4, selectBits: Bit2): Bit {
+    return orGateNInp([
+        // for select value 00
+        andGateNInp([
+            data[0],
+            ...selectBits.map(bit => inverter(bit)),
+        ]),
+        // for select value 01
+        andGateNInp([
+            data[1],
+            ...selectBits.map((bit, indx) => indx !== 1 ? inverter(bit) : bit),
+        ]),
+        // for select value 10
+        andGateNInp([
+            data[2],
+            ...selectBits.map((bit, indx) => indx !== 0 ? inverter(bit) : bit),
+        ]),
+        // for select value 11
+        andGateNInp([
+            data[3],
             ...selectBits,
         ]),
     ]);

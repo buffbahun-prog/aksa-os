@@ -1,609 +1,938 @@
-import { describe, expect, it } from "vitest";
-
+import { describe, expect, test } from "vitest";
 import { shiftRotate32 } from "./shiftRotate32";
-import type { Bit32 } from "../types";
-import { decimalToBinary } from "../utils/convertion";
+import type { Bit, Bit3, Bit32, Bit6 } from "../types";
 
-/**
- * Convert a JS number into Bit32.
- */
-function toBit32(value: number): Bit32 {
-    return decimalToBinary(value >>> 0, 32) as Bit32;
+const bit = (n: number): Bit => (n ? 1 : 0);
+
+function numberToBit32(value: number): Bit32 {
+    const result = [];
+
+    for (let i = 31; i >= 0; i--) {
+        result.push(bit((value >>> i) & 1));
+    }
+
+    return result as Bit32;
 }
 
-/**
- * Convert Bit32 back into an unsigned JS number.
- */
-function fromBit32(bits: Bit32): number {
-    return parseInt(bits.join(""), 2) >>> 0;
+// function numberToBit6(value: number): Bit6 {
+//     const result = [];
+
+//     for (let i = 5; i >= 0; i--) {
+//         result.push(bit((value >>> i) & 1));
+//     }
+
+//     return result as Bit6;
+// }
+
+function bit32ToNumber(bits: Bit32): number {
+    let result = 0;
+
+    for (const b of bits) {
+        result = ((result << 1) | b) >>> 0;
+    }
+
+    return result >>> 0;
 }
 
-/**
- * Reference implementation.
- *
- * IMPORTANT:
- * This is deliberately written using normal JS operations.
- * It is the "truth model" against which the gate implementation
- * is tested.
- */
-function referenceShiftRotate(
-    data: number,
-    shiftBy: number,
-    shiftDir: 0 | 1,
-    rotate: 0 | 1
-): number {
-    data >>>= 0;
-    shiftBy >>>= 0;
-
-    if (rotate) {
-        const amount = shiftBy % 32;
-
-        if (amount === 0) {
-            return data;
-        }
-
-        if (shiftDir === 0) {
-            // left rotate
-            return (
-                ((data << amount) |
-                    (data >>> (32 - amount))) >>> 0
-            );
-        }
-
-        // right rotate
-        return (
-            ((data >>> amount) |
-                (data << (32 - amount))) >>> 0
-        );
-    }
-
-    // Normal logical shift.
-    //
-    // Your implementation considers shift >= 32 invalid.
-    if (shiftBy >= 32) {
-        return 0;
-    }
-
-    if (shiftDir === 0) {
-        // logical left shift
-        return (data << shiftBy) >>> 0;
-    }
-
-    // logical right shift
-    return data >>> shiftBy;
+function control(
+    shiftDir: Bit,
+    rotate: Bit,
+    withCarry: Bit,
+): Bit3 {
+    return [shiftDir, rotate, withCarry];
 }
 
 function run(
-    data: number,
-    shiftBy: number,
-    shiftDir: 0 | 1,
-    rotate: 0 | 1
-): number {
+    value: number,
+    shift: number,
+    carry: Bit,
+    ctrl: Bit3,
+) {
     const result = shiftRotate32(
-        toBit32(data),
-        toBit32(shiftBy),
-        shiftDir,
-        rotate
+        numberToBit32(value >>> 0) as Bit32,
+        numberToBit32(shift),
+        carry,
+        ctrl,
     );
 
-    return fromBit32(result);
+    return {
+        result: bit32ToNumber(result.result),
+        carry: result.carry,
+    };
 }
 
-describe("shiftRotate32", () => {
-
-    // ------------------------------------------------------------
-    // BASIC SANITY TESTS
-    // ------------------------------------------------------------
-
-    describe("basic behavior", () => {
-
-        it("does nothing when shifting by zero", () => {
-            const values = [
-                0x00000000,
-                0x00000001,
-                0xffffffff,
-                0xaaaaaaaa,
-                0x55555555,
-                0x80000000,
-                0x00000001,
-                0x12345678,
-                0xdeadbeef,
-            ];
-
-            for (const data of values) {
-                expect(run(data, 0, 0, 0)).toBe(data >>> 0);
-                expect(run(data, 0, 1, 0)).toBe(data >>> 0);
-                expect(run(data, 0, 0, 1)).toBe(data >>> 0);
-                expect(run(data, 0, 1, 1)).toBe(data >>> 0);
-            }
-        });
-
-        it("shifting zero always produces zero", () => {
-            for (let shift = 0; shift < 32; shift++) {
-                expect(run(0, shift, 0, 0)).toBe(0);
-                expect(run(0, shift, 1, 0)).toBe(0);
-            }
-        });
-
-        it("rotating zero always produces zero", () => {
-            for (let shift = 0; shift < 100; shift++) {
-                expect(run(0, shift, 0, 1)).toBe(0);
-                expect(run(0, shift, 1, 1)).toBe(0);
-            }
-        });
-
-        it("shifting all ones behaves correctly", () => {
-            const data = 0xffffffff;
-
-            for (let shift = 0; shift < 32; shift++) {
-                expect(run(data, shift, 0, 0))
-                    .toBe(referenceShiftRotate(data, shift, 0, 0));
-
-                expect(run(data, shift, 1, 0))
-                    .toBe(referenceShiftRotate(data, shift, 1, 0));
-            }
-        });
-
-        it("rotating all ones does nothing", () => {
-            const data = 0xffffffff;
-
-            for (let shift = 0; shift < 100; shift++) {
-                expect(run(data, shift, 0, 1)).toBe(data);
-                expect(run(data, shift, 1, 1)).toBe(data);
-            }
-        });
-    });
-
-
-    // ------------------------------------------------------------
-    // EXHAUSTIVE SHIFT AMOUNTS
-    // ------------------------------------------------------------
-
-    describe("all valid shift amounts", () => {
-
-        const dataPatterns = [
+describe("000 - no operation", () => {
+    test("preserves zero", () => {
+        expect(run(
             0x00000000,
-            0xffffffff,
-            0xaaaaaaaa,
-            0x55555555,
-            0x80000000,
-            0x00000001,
-            0x80000001,
-            0x7fffffff,
-            0x12345678,
-            0x87654321,
-            0xdeadbeef,
-            0xcafebabe,
-        ];
-
-        for (const data of dataPatterns) {
-            for (let shift = 0; shift < 32; shift++) {
-
-                it(
-                    `left shift: 0x${data.toString(16)} << ${shift}`,
-                    () => {
-                        expect(run(data, shift, 0, 0))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    0,
-                                    0
-                                )
-                            );
-                    }
-                );
-
-                it(
-                    `right shift: 0x${data.toString(16)} >> ${shift}`,
-                    () => {
-                        expect(run(data, shift, 1, 0))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    1,
-                                    0
-                                )
-                            );
-                    }
-                );
-            }
-        }
+            0,
+            0,
+            control(0, 0, 0),
+        )).toEqual({
+            result: 0x00000000,
+            carry: 0,
+        });
     });
 
-
-    // ------------------------------------------------------------
-    // EXHAUSTIVE ROTATION
-    // ------------------------------------------------------------
-
-    describe("all rotation amounts", () => {
-
-        const dataPatterns = [
-            0x00000000,
+    test("preserves all ones", () => {
+        expect(run(
             0xffffffff,
-            0xaaaaaaaa,
-            0x55555555,
-            0x80000000,
-            0x00000001,
-            0x80000001,
-            0x7fffffff,
-            0x12345678,
-            0x87654321,
-            0xdeadbeef,
-            0xcafebabe,
-        ];
-
-        for (const data of dataPatterns) {
-            for (let shift = 0; shift < 64; shift++) {
-
-                it(
-                    `left rotate: 0x${data.toString(16)} rol ${shift}`,
-                    () => {
-                        expect(run(data, shift, 0, 1))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    0,
-                                    1
-                                )
-                            );
-                    }
-                );
-
-                it(
-                    `right rotate: 0x${data.toString(16)} ror ${shift}`,
-                    () => {
-                        expect(run(data, shift, 1, 1))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    1,
-                                    1
-                                )
-                            );
-                    }
-                );
-            }
-        }
+            0,
+            0,
+            control(0, 0, 0),
+        )).toEqual({
+            result: 0xffffffff,
+            carry: 0,
+        });
     });
 
+    test("preserves arbitrary value", () => {
+        expect(run(
+            0x12345678,
+            17,
+            0,
+            control(0, 0, 0),
+        )).toEqual({
+            result: 0x12345678,
+            carry: 0,
+        });
+    });
 
-    // ------------------------------------------------------------
-    // CRITICAL BOUNDARY VALUES
-    // ------------------------------------------------------------
+    test("carry is unchanged", () => {
+        expect(run(
+            0xdeadbeef,
+            31,
+            1,
+            control(0, 0, 0),
+        )).toEqual({
+            result: 0xdeadbeef,
+            carry: 1,
+        });
+    });
+});
 
-    describe("boundary shift amounts", () => {
+describe("001 - logical left shift", () => {
+    test("shift by 0", () => {
+        expect(run(
+            0x12345678,
+            0,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0x12345678);
+    });
 
-        const shifts = [
+    test("shift by 1", () => {
+        expect(run(
+            0x12345678,
+            1,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0x2468acf0);
+    });
+
+    test("shift by 4", () => {
+        expect(run(
+            0x12345678,
+            4,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0x23456780);
+    });
+
+    test("shift by 8", () => {
+        expect(run(
+            0x12345678,
+            8,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0x34567800);
+    });
+
+    test("shift by 16", () => {
+        expect(run(
+            0x12345678,
+            16,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0x56780000);
+    });
+
+    test("shift by 31", () => {
+        expect(run(
+            0x12345678,
+            31,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0);
+    });
+
+    test("all ones shifted by 1", () => {
+        expect(run(
+            0xffffffff,
+            1,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0xfffffffe);
+    });
+
+    test("MSB shifted out", () => {
+        expect(run(
+            0x80000000,
+            1,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0);
+    });
+
+    test("LSB enters as zero", () => {
+        expect(run(
+            0x00000001,
+            1,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(2);
+    });
+
+    test("zero remains zero", () => {
+        expect(run(
+            0,
+            13,
+            0,
+            control(0, 0, 1),
+        ).result).toBe(0);
+    });
+});
+
+describe("100 - arithmetic right shift", () => {
+    test("positive number shift by 1", () => {
+        expect(run(
+            0x40000000,
+            1,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0x20000000);
+    });
+
+    test("negative number shift by 1", () => {
+        expect(run(
+            0x80000000,
+            1,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0xc0000000);
+    });
+
+    test("negative number shift by 4", () => {
+        expect(run(
+            0x80000000,
+            4,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0xf8000000);
+    });
+
+    test("negative number shift by 8", () => {
+        expect(run(
+            0x80000000,
+            8,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0xff800000);
+    });
+
+    test("negative number shift by 16", () => {
+        expect(run(
+            0x80000000,
+            16,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0xffff8000);
+    });
+
+    test("negative number shift by 31", () => {
+        expect(run(
+            0x80000000,
+            31,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0xffffffff);
+    });
+
+    test("all ones remains all ones", () => {
+        expect(run(
+            0xffffffff,
+            31,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0xffffffff);
+    });
+
+    test("positive zero-fill is correct", () => {
+        expect(run(
+            0x7fffffff,
+            1,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0x3fffffff);
+    });
+
+    test("sign bit propagates", () => {
+        expect(run(
+            0x80000001,
+            4,
+            0,
+            control(1, 0, 0),
+        ).result).toBe(0xf8000000);
+    });
+});
+
+describe("101 - logical right shift", () => {
+    test("shift by 0", () => {
+        expect(run(
+            0x12345678,
+            0,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(0x12345678);
+    });
+
+    test("shift by 1", () => {
+        expect(run(
+            0x12345678,
+            1,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(0x091a2b3c);
+    });
+
+    test("shift by 4", () => {
+        expect(run(
+            0x12345678,
+            4,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(0x01234567);
+    });
+
+    test("shift by 8", () => {
+        expect(run(
+            0x12345678,
+            8,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(0x00123456);
+    });
+
+    test("shift by 16", () => {
+        expect(run(
+            0x12345678,
+            16,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(0x00001234);
+    });
+
+    test("shift by 31", () => {
+        expect(run(
+            0xffffffff,
+            31,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(1);
+    });
+
+    test("negative-looking value gets zero-filled", () => {
+        expect(run(
+            0x80000000,
+            1,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(0x40000000);
+    });
+
+    test("zero remains zero", () => {
+        expect(run(
+            0,
+            17,
+            0,
+            control(1, 0, 1),
+        ).result).toBe(0);
+    });
+});
+
+describe("010 - left rotate", () => {
+    const value = 0x12345678;
+
+    test("rotate by 0", () => {
+        expect(run(
+            value,
+            0,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(value);
+    });
+
+    test("rotate by 1", () => {
+        expect(run(
+            value,
+            1,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0x2468acf0);
+    });
+
+    test("rotate by 4", () => {
+        expect(run(
+            value,
+            4,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0x23456781);
+    });
+
+    test("rotate by 8", () => {
+        expect(run(
+            value,
+            8,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0x34567812);
+    });
+
+    test("rotate by 16", () => {
+        expect(run(
+            value,
+            16,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0x56781234);
+    });
+
+    test("rotate by 31", () => {
+        expect(run(
+            value,
+            31,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0x091a2b3c);
+    });
+
+    test("rotate by 32 returns original", () => {
+        expect(run(
+            value,
+            32,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(value);
+    });
+
+    test("all zeros remain zero", () => {
+        expect(run(
+            0,
+            17,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0);
+    });
+
+    test("all ones remain ones", () => {
+        expect(run(
+            0xffffffff,
+            17,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0xffffffff);
+    });
+
+    test("single bit rotates around entire word", () => {
+        expect(run(
+            0x00000001,
+            1,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0x00000002);
+
+        expect(run(
+            0x00000001,
+            31,
+            0,
+            control(0, 1, 0),
+        ).result).toBe(0x80000000);
+    });
+});
+
+describe("011 - rotate left through carry", () => {
+    test("RCL 0 preserves value and carry", () => {
+        expect(run(
+            0x12345678,
             0,
             1,
-            2,
-            3,
-            4,
-            7,
-            8,
-            15,
-            16,
-            17,
-            23,
-            24,
-            30,
-            31,
-            32,
-            33,
-            63,
-            64,
-            65,
-            127,
-            128,
-            255,
-            256,
-            1023,
-            0xffffffff,
-        ];
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x12345678,
+            carry: 1,
+        });
+    });
 
-        const data = [
-            0x00000000,
-            0x00000001,
+    test("RCL 1 with carry 0", () => {
+        expect(run(
             0x80000000,
-            0xffffffff,
-            0xaaaaaaaa,
-            0x55555555,
+            1,
+            0,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x00000000,
+            carry: 1,
+        });
+    });
+
+    test("RCL 1 with carry 1", () => {
+        expect(run(
+            0x00000000,
+            1,
+            1,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x00000001,
+            carry: 0,
+        });
+    });
+
+    test("RCL 1 normal pattern", () => {
+        expect(run(
             0x12345678,
-            0xdeadbeef,
-        ];
+            1,
+            0,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x2468acf0,
+            carry: 0,
+        });
+    });
 
-        for (const value of data) {
-            for (const shift of shifts) {
+    test("RCL 1 inserts carry", () => {
+        expect(run(
+            0x12345678,
+            1,
+            1,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x2468acf1,
+            carry: 0,
+        });
+    });
 
-                it(
-                    `boundary: data=0x${value.toString(16)}, shift=${shift}`,
+    test("RCL 4", () => {
+        expect(run(
+            0x12345678,
+            4,
+            1,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x23456788,
+            carry: 1,
+        });
+    });
+
+    test("RCL 8", () => {
+        expect(run(
+            0x12345678,
+            8,
+            0,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x34567809,
+            carry: 0,
+        });
+    });
+
+    test("RCL 16", () => {
+        expect(run(
+            0x12345678,
+            16,
+            0,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x5678091a,
+            carry: 0,
+        });
+    });
+
+    test("RCL 32", () => {
+    expect(run(
+        0x12345678,
+        32,
+        1,
+        control(0, 1, 1),
+    )).toEqual({
+        result: 0x891a2b3c,
+        carry: 0,
+    });
+});
+
+    test("RCL 33 returns original value and carry", () => {
+        expect(run(
+            0x12345678,
+            33,
+            1,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x12345678,
+            carry: 1,
+        });
+    });
+
+    test("RCL 34 is equivalent to RCL 1", () => {
+        expect(run(
+            0x12345678,
+            34,
+            0,
+            control(0, 1, 1),
+        )).toEqual({
+            result: 0x2468acf0,
+            carry: 0,
+        });
+    });
+});
+
+
+describe("111 - rotate right through carry", () => {
+    test("RCR 0 preserves value and carry", () => {
+        expect(run(
+            0x12345678,
+            0,
+            1,
+            control(1, 1, 1),
+        )).toEqual({
+            result: 0x12345678,
+            carry: 1,
+        });
+    });
+
+    test("RCR 1 with carry 0", () => {
+        expect(run(
+            0x00000001,
+            1,
+            0,
+            control(1, 1, 1),
+        )).toEqual({
+            result: 0x00000000,
+            carry: 1,
+        });
+    });
+
+    test("RCR 1 with carry 1", () => {
+        expect(run(
+            0x00000000,
+            1,
+            1,
+            control(1, 1, 1),
+        )).toEqual({
+            result: 0x80000000,
+            carry: 0,
+        });
+    });
+
+    test("RCR 1 inserts carry", () => {
+        expect(run(
+            0x12345678,
+            1,
+            1,
+            control(1, 1, 1),
+        )).toEqual({
+            result: 0x891a2b3c,
+            carry: 0,
+        });
+    });
+
+    test("RCR 4", () => {
+        expect(run(
+            0x12345678,
+            4,
+            1,
+            control(1, 1, 1),
+        )).toEqual({
+            result: 0x11234567,
+            carry: 1,
+        });
+    });
+
+    test("RCR 8", () => {
+        expect(run(
+            0x12345678,
+            8,
+            0,
+            control(1, 1, 1),
+        )).toEqual({
+            result: 0xf0123456,
+            carry: 0,
+        });
+    });
+
+    test("RCR 16", () => {
+        expect(run(
+            0x12345678,
+            16,
+            0,
+            control(1, 1, 1),
+        )).toEqual({
+            result: 0xacf01234,
+            carry: 0,
+        });
+    });
+
+    test("RCR 32 with carry 0", () => {
+    expect(run(
+        0x12345678,
+        32,
+        0,
+        control(1, 1, 1),
+    )).toEqual({
+        result: 0x2468acf0,
+        carry: 0,
+    });
+});
+
+  test("RCR 32 with carry 1", () => {
+    expect(run(
+        0x12345678,
+        32,
+        1,
+        control(1, 1, 1),
+    )).toEqual({
+        result: 0x2468acf1, // 610839793
+        carry: 0,
+    });
+});
+});
+
+test("RCR 32 with carry 0", () => {
+    expect(run(
+        0x12345678,
+        32,
+        0,
+        control(1, 1, 1),
+    )).toEqual({
+        result: 0x2468acf0,
+        carry: 0,
+    });
+});
+
+
+describe("carry preservation", () => {
+    const controls: Bit3[] = [
+        control(0, 0, 0), // NOP
+        control(0, 1, 0), // ROL
+        control(1, 1, 0), // ROR
+    ];
+
+    for (const ctrl of controls) {
+        for (const carry of [0, 1] as Bit[]) {
+            test(`preserves carry=${carry}`, () => {
+                const result = run(
+                    0x12345678,
+                    7,
+                    carry,
+                    ctrl,
+                );
+
+                expect(result.carry).toBe(carry);
+            });
+        }
+    }
+});
+
+describe("all shift amounts", () => {
+    const values = [
+        0x00000000,
+        0x00000001,
+        0x00000002,
+        0x00000003,
+        0x7fffffff,
+        0x80000000,
+        0x80000001,
+        0xaaaaaaaa,
+        0x55555555,
+        0xffffffff,
+        0x12345678,
+        0xdeadbeef,
+    ];
+
+    const operations = [
+        control(0, 0, 1), // LSL
+        control(1, 0, 0), // ASR
+        control(1, 0, 1), // LSR
+        control(0, 1, 0), // ROL
+        control(1, 1, 0), // ROR
+    ];
+
+    for (const value of values) {
+        for (const ctrl of operations) {
+            for (let shift = 0; shift <= 31; shift++) {
+                test(
+                    `${value.toString(16)} shift=${shift} ctrl=${ctrl.join("")}`,
                     () => {
-
-                        expect(run(value, shift, 0, 0))
-                            .toBe(
-                                referenceShiftRotate(
-                                    value,
-                                    shift,
-                                    0,
-                                    0
-                                )
-                            );
-
-                        expect(run(value, shift, 1, 0))
-                            .toBe(
-                                referenceShiftRotate(
-                                    value,
-                                    shift,
-                                    1,
-                                    0
-                                )
-                            );
-
-                        expect(run(value, shift, 0, 1))
-                            .toBe(
-                                referenceShiftRotate(
-                                    value,
-                                    shift,
-                                    0,
-                                    1
-                                )
-                            );
-
-                        expect(run(value, shift, 1, 1))
-                            .toBe(
-                                referenceShiftRotate(
-                                    value,
-                                    shift,
-                                    1,
-                                    1
-                                )
-                            );
-                    }
+                        // Reference implementation goes here.
+                    },
                 );
             }
         }
-    });
+    }
+});
 
+function reference(
+    value: number,
+    shift: number,
+    carry: Bit,
+    ctrl: Bit3,
+): { result: number; carry: Bit } {
+    const [shiftDir, rotate, withCarry] = ctrl;
 
-    // ------------------------------------------------------------
-    // SINGLE-BIT TESTS
-    // ------------------------------------------------------------
+    if (ctrl.every((b) => b === 0)) {
+        return {
+            result: value >>> 0,
+            carry,
+        };
+    }
 
-    describe("single-bit patterns", () => {
+    if (rotate && withCarry) {
+        let state =
+            BigInt(carry) |
+            (BigInt(value >>> 0) << 1n);
 
-        for (let bit = 0; bit < 32; bit++) {
+        const amount = shift % 33;
 
-            const data = (2 ** bit) >>> 0;
-
-            for (let shift = 0; shift < 32; shift++) {
-
-                it(
-                    `single bit ${bit}, left shift ${shift}`,
-                    () => {
-                        expect(run(data, shift, 0, 0))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    0,
-                                    0
-                                )
-                            );
-                    }
-                );
-
-                it(
-                    `single bit ${bit}, right shift ${shift}`,
-                    () => {
-                        expect(run(data, shift, 1, 0))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    1,
-                                    0
-                                )
-                            );
-                    }
-                );
-
-                it(
-                    `single bit ${bit}, left rotate ${shift}`,
-                    () => {
-                        expect(run(data, shift, 0, 1))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    0,
-                                    1
-                                )
-                            );
-                    }
-                );
-
-                it(
-                    `single bit ${bit}, right rotate ${shift}`,
-                    () => {
-                        expect(run(data, shift, 1, 1))
-                            .toBe(
-                                referenceShiftRotate(
-                                    data,
-                                    shift,
-                                    1,
-                                    1
-                                )
-                            );
-                    }
-                );
-            }
+        if (shiftDir === 0) {
+            // RCL
+            state =
+                ((state << BigInt(amount)) |
+                (state >> BigInt(33 - amount))) &
+                ((1n << 33n) - 1n);
+        } else {
+            // RCR
+            state =
+                ((state >> BigInt(amount)) |
+                (state << BigInt(33 - amount))) &
+                ((1n << 33n) - 1n);
         }
-    });
 
+        return {
+            result: Number((state >> 1n) & 0xffffffffn) >>> 0,
+            carry: Number(state & 1n) as Bit,
+        };
+    }
 
-    // ------------------------------------------------------------
-    // ROTATION INVARIANTS
-    // ------------------------------------------------------------
+    if (rotate) {
+        const amount = shift % 32;
 
-    describe("rotation invariants", () => {
+        if (amount === 0) {
+            return {
+                result: value >>> 0,
+                carry,
+            };
+        }
 
-        const values = [
-            0x12345678,
-            0xdeadbeef,
-            0x80000001,
-            0xaaaaaaaa,
-            0x55555555,
-        ];
+        if (shiftDir === 0) {
+            const result =
+                ((value << amount) |
+                (value >>> (32 - amount))) >>> 0;
 
-        it("rotating by 32 returns the original value", () => {
-            for (const data of values) {
-                expect(run(data, 32, 0, 1)).toBe(data >>> 0);
-                expect(run(data, 32, 1, 1)).toBe(data >>> 0);
-            }
-        });
+            return {
+                result,
+                carry: carry,
+            };
+        }
 
-        it("rotating by 64 returns the original value", () => {
-            for (const data of values) {
-                expect(run(data, 64, 0, 1)).toBe(data >>> 0);
-                expect(run(data, 64, 1, 1)).toBe(data >>> 0);
-            }
-        });
+        const result =
+            ((value >>> amount) |
+            (value << (32 - amount))) >>> 0;
 
-        it("rotate by N is equivalent to rotate by N % 32", () => {
-            for (const data of values) {
-                for (let shift = 0; shift < 128; shift++) {
+        return {
+            result,
+            carry,
+        };
+    }
 
-                    expect(run(data, shift, 0, 1))
-                        .toBe(run(data, shift % 32, 0, 1));
+    if (shiftDir === 0) {
+        const result =
+            shift >= 32
+                ? 0
+                : (value << shift) >>> 0;
 
-                    expect(run(data, shift, 1, 1))
-                        .toBe(run(data, shift % 32, 1, 1));
-                }
-            }
-        });
+        return {
+            result,
+            carry,
+        };
+    }
 
-        it("left rotate N followed by right rotate N restores the value", () => {
-            for (const data of values) {
-                for (let shift = 0; shift < 32; shift++) {
+    if (withCarry === 0) {
+        const signed = value | 0;
 
-                    const rotated = run(data, shift, 0, 1);
+        const result =
+            shift >= 32
+                ? (signed < 0 ? 0xffffffff : 0)
+                : signed >> shift;
 
-                    const restored = run(
-                        rotated,
-                        shift,
-                        1,
-                        1
-                    );
+        return {
+            result: result >>> 0,
+            carry,
+        };
+    }
 
-                    expect(restored).toBe(data >>> 0);
-                }
-            }
-        });
-    });
+    const result =
+        shift >= 32
+            ? 0
+            : value >>> shift;
 
+    return {
+        result,
+        carry,
+    };
+}
 
-    // ------------------------------------------------------------
-    // SHIFT INVARIANTS
-    // ------------------------------------------------------------
+describe("randomized reference comparison", () => {
+    test("10,000 random cases", () => {
+        let state = 0x12345678;
 
-    describe("shift invariants", () => {
+        function random32() {
+            state = Math.imul(
+                state ^ (state >>> 16),
+                0x45d9f3b,
+            );
 
-        it("left shifting by 31 only preserves the original LSB", () => {
-            expect(run(0x00000001, 31, 0, 0))
-                .toBe(0x80000000);
+            state ^= state >>> 16;
 
-            expect(run(0x00000000, 31, 0, 0))
-                .toBe(0);
+            return state >>> 0;
+        }
 
-            expect(run(0x00000002, 31, 0, 0))
-                .toBe(0);
-        });
+        for (let i = 0; i < 10_000; i++) {
+            const value = random32();
+            const shift = random32() & 0x3f;
+            const carry = (random32() & 1) as Bit;
 
-        it("right shifting by 31 only preserves the original MSB", () => {
-            expect(run(0x80000000, 31, 1, 0))
-                .toBe(1);
+            const ctrlValue = random32() & 0x7;
 
-            expect(run(0x00000000, 31, 1, 0))
-                .toBe(0);
-
-            expect(run(0x40000000, 31, 1, 0))
-                .toBe(0);
-        });
-
-        it("shift >= 32 produces zero", () => {
-            const values = [
-                0,
-                1,
-                0xffffffff,
-                0x80000000,
-                0x12345678,
-                0xdeadbeef,
+            const ctrl: Bit3 = [
+                ((ctrlValue >> 2) & 1) as Bit,
+                ((ctrlValue >> 1) & 1) as Bit,
+                (ctrlValue & 1) as Bit,
             ];
 
-            const shifts = [
-                32,
-                33,
-                63,
-                64,
-                127,
-                255,
-                256,
-                1024,
-                0xffffffff,
-            ];
+            const actual = run(
+                value,
+                shift,
+                carry,
+                ctrl,
+            );
 
-            for (const data of values) {
-                for (const shift of shifts) {
-                    expect(run(data, shift, 0, 0)).toBe(0);
-                    expect(run(data, shift, 1, 0)).toBe(0);
-                }
-            }
-        });
-    });
+            const expected = reference(
+                value,
+                shift,
+                carry,
+                ctrl,
+            );
 
-
-    // ------------------------------------------------------------
-    // RANDOMIZED FUZZ TEST
-    // ------------------------------------------------------------
-
-    describe("randomized testing", () => {
-
-        it("passes 1,000 random cases", () => {
-
-            for (let i = 0; i < 1_000; i++) {
-
-                const data =
-                    Math.floor(Math.random() * 0x100000000) >>> 0;
-
-                const shift =
-                    Math.floor(Math.random() * 0x100000000) >>> 0;
-
-                const shiftDir =
-                    Math.random() < 0.5 ? 0 : 1;
-
-                const rotate =
-                    Math.random() < 0.5 ? 0 : 1;
-
-                const actual = run(
-                    data,
-                    shift,
-                    shiftDir,
-                    rotate
-                );
-
-                const expected = referenceShiftRotate(
-                    data,
-                    shift,
-                    shiftDir,
-                    rotate
-                );
-
-                expect(actual).toBe(expected);
-            }
-        });
+            expect(actual).toEqual(expected);
+        }
     });
 });

@@ -1,4 +1,9 @@
 export type Bit = 0 | 1;
+export type Bit2 = [Bit, Bit];
+export type Bit3 = [Bit, Bit, Bit];
+export type Bit4 = [Bit, Bit, Bit, Bit];
 export type Bit5 = [Bit, Bit, Bit, Bit, Bit];
+export type Bit6 = [Bit, Bit, Bit, Bit, Bit, Bit];
 export type Bit8 = [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit];
 export type Bit32 = [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit];
+export type Bit33 = [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit];

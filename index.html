@@ -4,10 +4,223 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="src/style.css">
     <title>she-is-the-bmoos</title>
   </head>
   <body>
+    <nav class="site-nav">
+
+    <button
+        class="site-nav__brand"
+        type="button"
+        aria-label="AKSA OS — Home"
+    >
+        <span class="site-nav__name">
+            AKSA
+        </span>
+
+        <span class="site-nav__type">
+            OS
+        </span>
+    </button>
+
+</nav>
     <div id="app"></div>
+
+    <template id="homePageTmpl">
+    <main class="home-page">
+        <div class="playground-sections"></div>
+    </main>
+</template>
+
+<template id="playgroundSectionTmpl">
+    <section class="playground-section">
+
+        <header class="playground-section__header">
+            <h2 class="playground-section__title"></h2>
+            <p class="playground-section__description"></p>
+        </header>
+
+        <div class="playground-grid"></div>
+
+    </section>
+</template>
+
+
+<template id="playgroundCardTmpl">
+
+    <button
+        class="playground-card"
+        type="button"
+    >
+
+        <div class="playground-card__icon">
+            <!-- SVG inserted here -->
+        </div>
+
+        <div class="playground-card__body">
+
+            <h2 class="playground-card__title"></h2>
+
+            <p class="playground-card__description"></p>
+
+        </div>
+
+        <svg
+            class="playground-card__arrow"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path d="M9 5l7 7-7 7" />
+        </svg>
+
+    </button>
+
+</template>
+
+    <template id="gates-page-template">
+
+        <main class="gates-page">
+
+            <header class="gates-page__header">
+                <h1></h1>
+
+                <p>
+                    
+                </p>
+            </header>
+
+            <section class="gates-container"></section>
+
+        </main>
+
+    </template>
+    
+    <template id="circuitCardTmpl">
+        <div class="circuit-card">
+
+    <div class="circuit-card__viewport">
+        <!-- CircuitSvg.element -->
+    </div>
+
+    <div class="circuit-card__zoom">
+
+    <button class="zoom-in" type="button" aria-label="Zoom in">
+        +
+    </button>
+
+    <button class="zoom-out" type="button" aria-label="Zoom out">
+        −
+    </button>
+
+
+    <button class="pan-up" type="button" aria-label="Move up">
+        ↑
+    </button>
+
+    <button class="pan-left" type="button" aria-label="Move left">
+        ←
+    </button>
+
+    <button class="pan-right" type="button" aria-label="Move right">
+        →
+    </button>
+
+    <button class="pan-down" type="button" aria-label="Move down">
+        ↓
+    </button>
+
+</div>
+
+    <div class="circuit-card__controls">
+
+        <!-- Inspect -->
+        <button
+            class="inspect-button"
+            type="button"
+            aria-label="Inspect circuit internals"
+        >
+            <svg
+                class="inspect-button__icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <!-- Magnifying glass -->
+                <circle
+                    cx="10.5"
+                    cy="10.5"
+                    r="6.5"
+                />
+
+                <path
+                    d="M16 16L21 21"
+                />
+
+                <!-- Small inner circuit node -->
+                <circle
+                    cx="10.5"
+                    cy="10.5"
+                    r="2"
+                />
+            </svg>
+
+            <span class="inspect-button__label">
+                Inspect
+            </span>
+        </button>
+
+
+        <!-- Inspection stepper -->
+        <div class="inspection-stepper">
+            <div class="stepper-track"></div>
+        </div>
+
+        <template class="stepTmpl">
+            <button
+                class="step"
+                type="button"
+                aria-label="Current view"
+            ></button>
+        </template>
+
+
+        <!-- Navigation -->
+        <div class="stepper-navigation">
+
+            <button
+                class="stepper-arrow arrow-prev"
+                type="button"
+                aria-label="Previous view"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path d="M14.5 5L8 12L14.5 19" />
+                </svg>
+            </button>
+
+
+            <button
+                class="stepper-arrow arrow-next"
+                type="button"
+                aria-label="Next view"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path d="M9.5 5L16 12L9.5 19" />
+                </svg>
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+    </template>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

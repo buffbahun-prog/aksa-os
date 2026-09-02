@@ -29,8 +29,18 @@ export function nandGate(bit0: Bit, bit1: Bit): Bit {
     return inverter( andGate(bit0, bit1) );
 }
 
+export function nandGateNInp(inputBits: Bit[]): Bit {
+    if (inputBits.some(bit => bit === 0)) return 1;
+    else return 0;
+}
+
 export function norGate(bit0: Bit, bit1: Bit): Bit {
     return inverter( orGate(bit0, bit1) );
+}
+
+export function norGateNInp(inputBits: Bit[]): Bit {
+    if (inputBits.some(bit => bit === 1)) return 0;
+    return 1;
 }
 
 export function xorGate(bit0: Bit, bit1: Bit): Bit {

@@ -161,11 +161,12 @@ code {
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
+  /* border-inline: 1px solid var(--border); */
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  padding: 5px;
 }
 
 #center {
@@ -293,4 +294,1665 @@ code {
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+
+/* =========================================================
+   CIRCUIT CARD
+   ========================================================= */
+
+.circuit-card {
+    --card-bg: #0d131c;
+    --card-surface: #111925;
+    --card-surface-hover: #172131;
+
+    --border: #263244;
+    --border-bright: #35445a;
+
+    --text: #e5e7eb;
+    --text-muted: #8b98aa;
+
+    --accent: #22c55e;
+    --accent-soft: rgba(34, 197, 94, 0.16);
+    --accent-glow: rgba(34, 197, 94, 0.35);
+
+    width: 100%;
+    height: 100%;
+
+    max-width: 800px;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    position: relative;
+
+    background: var(--card-bg);
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.28),
+        0 2px 8px rgba(0, 0, 0, 0.18);
+
+    isolation: isolate;
+
+    transition:
+        border-color 220ms ease,
+        box-shadow 220ms ease;
+}
+
+
+/* subtle outer glow */
+
+.circuit-card::before {
+    content: "";
+
+    position: absolute;
+    inset: -1px;
+
+    border-radius: inherit;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,0.06),
+            transparent 30%,
+            transparent 70%,
+            rgba(255,255,255,0.025)
+        );
+
+    z-index: 10;
+}
+
+
+/* =========================================================
+   SVG VIEWPORT
+   ========================================================= */
+
+.circuit-card__viewport {
+    flex: 1 1 auto;
+
+    width: 100%;
+    min-height: 0;
+
+    position: relative;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #0F172A; /* Midnight Blue */
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+
+    background-size: 32px 32px;
+}
+
+
+/*
+ * Soft center illumination.
+ */
+
+.circuit-card__viewport::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(55, 75, 100, 0.14),
+            transparent 58%
+        );
+
+    opacity: 0.9;
+}
+
+
+/*
+ * Slight vignette.
+ */
+
+.circuit-card__viewport::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 45%,
+            rgba(0, 0, 0, 0.20) 100%
+        );
+}
+
+
+/*
+ * Your CircuitSvg element.
+ */
+
+.circuit-card__viewport > svg {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    position: relative;
+    z-index: 1;
+
+    /*
+     * Prevent the SVG from looking like a random
+     * rectangular image inside the card.
+     */
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   CONTROLS BAR
+   ========================================================= */
+
+.circuit-card__controls {
+    flex: 0 0 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+    padding: 0 14px;
+
+    position: relative;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #141d2a,
+            #101823
+        );
+
+    border-top: 1px solid var(--border);
+
+    box-shadow:
+        0 -8px 20px rgba(0, 0, 0, 0.10);
+
+    z-index: 20;
+}
+
+
+/* small top highlight */
+
+.circuit-card__controls::before {
+    content: "";
+
+    position: absolute;
+
+    left: 18px;
+    right: 18px;
+    top: 0;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.08),
+            transparent
+        );
+}
+
+
+/* =========================================================
+   INSPECT BUTTON
+   ========================================================= */
+
+.inspect-button {
+    flex: 0 0 auto;
+
+    height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 0 15px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #202b3c,
+            #182231
+        );
+
+    color: var(--text);
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    letter-spacing: 0.01em;
+}
+
+
+/* =========================================================
+   INSPECT ICON
+   ========================================================= */
+
+.inspect-button__icon {
+    width: 18px;
+    height: 18px;
+
+    flex: 0 0 18px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    fill: none;
+
+    stroke: #aeb9c8;
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    transition:
+        stroke 180ms ease,
+        transform 250ms ease;
+}
+
+.inspect-button:hover
+.inspect-button__icon {
+    stroke: #ffffff;
+    transform: scale(1.08);
+}
+
+
+/* =========================================================
+   STEPPER
+   ========================================================= */
+
+.inspection-stepper {
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT use flex: 1 1 auto here.
+     *
+     * The stepper should only occupy the space
+     * required by its steps.
+     */
+    flex: 0 1 auto;
+
+    width: max-content;
+    min-width: 40px;
+
+    height: 40px;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /*
+     * Distance between the step dots.
+     */
+    gap: 30px;
+
+    padding: 0 10px;
+}
+
+
+/* =========================================================
+   TRACK
+   ========================================================= */
+
+.stepper-track {
+    position: absolute;
+
+    /*
+     * The track follows the stepper's content width
+     * instead of stretching across the card.
+     */
+    left: 10px;
+    right: 10px;
+
+    top: 50%;
+
+    height: 2px;
+
+    transform: translateY(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            #39485d,
+            #2b384a
+        );
+
+    border-radius: 999px;
+
+    overflow: hidden;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   ACTIVE TRACK
+   ========================================================= */
+
+.inspection-stepper::before {
+    content: "";
+
+    position: absolute;
+
+    left: 10px;
+    top: 50%;
+
+    width: var(--progress, 0%);
+
+    height: 2px;
+
+    transform: translateY(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            #22c55e,
+            #4ade80
+        );
+
+    border-radius: 999px;
+
+    box-shadow:
+        0 0 8px rgba(34, 197, 94, 0.35);
+
+    transition:
+        width 300ms cubic-bezier(
+            0.22,
+            1,
+            0.36,
+            1
+        );
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   SINGLE STEP
+   ========================================================= */
+
+/*
+ * If there is only one .step:
+ *
+ *     ●
+ *
+ * There is no reason to show a track or navigation.
+ */
+
+.inspection-stepper:not(:has(.step + .step)) {
+    min-width: 40px;
+    width: 40px;
+
+    padding: 0;
+
+    gap: 0;
+}
+
+.inspection-stepper:not(:has(.step + .step))
+.stepper-track,
+
+.inspection-stepper:not(:has(.step + .step))::before {
+    display: none;
+}
+
+
+/* =========================================================
+   STEP DOTS
+   ========================================================= */
+
+.step {
+    width: 12px;
+    height: 12px;
+
+    flex: 0 0 12px;
+
+    padding: 0;
+
+    position: relative;
+    z-index: 2;
+
+    border: 2px solid #536176;
+    border-radius: 50%;
+
+    background: #121a26;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 0 3px #141d2a;
+
+    transition:
+        width 180ms ease,
+        height 180ms ease,
+        flex-basis 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+}
+
+
+/* hover */
+
+.step:hover {
+    border-color: #9aa8ba;
+    transform: scale(1.18);
+}
+
+
+/* visited */
+
+.step.visited {
+    border-color: #64748b;
+    background: #64748b;
+}
+
+
+/* active */
+
+.step.active {
+    width: 16px;
+    height: 16px;
+
+    flex-basis: 16px;
+
+    border-color: #4ade80;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 0 4px var(--accent-soft),
+        0 0 14px var(--accent-glow);
+
+    transform: scale(1);
+}
+
+
+/* =========================================================
+   ACTIVE STEP PULSE
+   ========================================================= */
+
+.step.active::after {
+    content: "";
+
+    position: absolute;
+
+    inset: -5px;
+
+    border: 1px solid rgba(34,197,94,0.35);
+
+    border-radius: 50%;
+
+    animation:
+        stepPulse 2s ease-out infinite;
+}
+
+
+@keyframes stepPulse {
+
+    0% {
+        transform: scale(0.75);
+        opacity: 0.8;
+    }
+
+    70% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+}
+
+.gates-page__header {
+    margin-bottom: 50px;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.stepper-navigation {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.stepper-arrow {
+    width: 36px;
+    height: 36px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid #344258;
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #202b3b,
+            #182231
+        );
+
+    color: #b8c3d1;
+
+    font-family:
+        system-ui,
+        sans-serif;
+
+    font-size: 24px;
+    font-weight: 300;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+
+    transition:
+        transform 120ms ease,
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+
+.stepper-arrow:hover:not(:disabled) {
+    background:
+        linear-gradient(
+            180deg,
+            #2a374a,
+            #202d3f
+        );
+
+    border-color: #53647c;
+
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
+
+.stepper-arrow:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+
+.stepper-arrow:disabled {
+    opacity: 0.28;
+
+    cursor: default;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   NAVIGATION ICONS
+   ========================================================= */
+
+.stepper-arrow svg {
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    transition:
+        transform 160ms ease;
+}
+
+
+.stepper-arrow:first-child:hover:not(:disabled) svg {
+    transform: translateX(-2px);
+}
+
+
+.stepper-arrow:last-child:hover:not(:disabled) svg {
+    transform: translateX(2px);
+}
+
+
+/* =========================================================
+   MOBILE / SMALL SCREENS
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .circuit-card__controls {
+        flex: 0 0 48px;
+
+        gap: 8px;
+
+        padding: 0 10px;
+    }
+
+
+    /* -----------------------------------------------------
+       Inspect
+       ----------------------------------------------------- */
+
+    .inspect-button {
+        width: 40px;
+        height: 34px;
+
+        padding: 0;
+
+        gap: 0;
+
+        border-radius: 8px;
+    }
+
+    .inspect-button__label {
+        display: none;
+    }
+
+    .inspect-button__icon {
+        width: 17px;
+        height: 17px;
+
+        flex-basis: 17px;
+    }
+
+
+    /* -----------------------------------------------------
+       Stepper
+       ----------------------------------------------------- */
+
+    .inspection-stepper {
+        height: 34px;
+
+        gap: 22px;
+
+        padding: 0 8px;
+
+        min-width: 34px;
+    }
+
+
+    .inspection-stepper:not(:has(.step + .step)) {
+        width: 34px;
+        min-width: 34px;
+    }
+
+
+    .stepper-track {
+        left: 8px;
+        right: 8px;
+
+        height: 1px;
+    }
+
+
+    .inspection-stepper::before {
+        left: 8px;
+
+        height: 1px;
+    }
+
+
+    /* -----------------------------------------------------
+       Steps
+       ----------------------------------------------------- */
+
+    .step {
+        width: 9px;
+        height: 9px;
+
+        flex-basis: 9px;
+
+        border-width: 1.5px;
+
+        box-shadow:
+            0 0 0 2px #141d2a;
+    }
+
+
+    .step.active {
+        width: 13px;
+        height: 13px;
+
+        flex-basis: 13px;
+
+        box-shadow:
+            0 0 0 3px var(--accent-soft),
+            0 0 9px var(--accent-glow);
+    }
+
+
+    .step.active::after {
+        inset: -4px;
+    }
+
+
+    /* -----------------------------------------------------
+       Navigation
+       ----------------------------------------------------- */
+
+    .stepper-navigation {
+        gap: 5px;
+    }
+
+    .stepper-arrow {
+        width: 32px;
+        height: 32px;
+
+        border-radius: 8px;
+
+        font-size: 20px;
+    }
+
+    .stepper-arrow svg {
+        width: 17px;
+        height: 17px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .circuit-card__controls {
+        flex: 0 0 44px;
+
+        gap: 6px;
+
+        padding: 0 8px;
+    }
+
+
+    .inspect-button {
+        width: 30px;
+        height: 30px;
+
+        border-radius: 7px;
+    }
+
+
+    .inspect-button__icon {
+        width: 16px;
+        height: 16px;
+
+        flex-basis: 16px;
+    }
+
+
+    .inspection-stepper {
+        height: 30px;
+
+        gap: 16px;
+
+        padding: 0 6px;
+    }
+
+
+    .inspection-stepper:not(:has(.step + .step)) {
+        width: 30px;
+        min-width: 30px;
+    }
+
+
+    .stepper-track {
+        left: 6px;
+        right: 6px;
+    }
+
+
+    .inspection-stepper::before {
+        left: 6px;
+    }
+
+
+    .step {
+        width: 8px;
+        height: 8px;
+
+        flex-basis: 8px;
+
+        box-shadow:
+            0 0 0 2px #141d2a;
+    }
+
+
+    .step.active {
+        width: 12px;
+        height: 12px;
+
+        flex-basis: 12px;
+    }
+
+
+    .stepper-navigation {
+        gap: 4px;
+    }
+
+
+    .stepper-arrow {
+        width: 25px;
+        height: 25px;
+
+        border-radius: 7px;
+
+        font-size: 18px;
+
+        border-width: 1px;
+    }
+
+
+    .stepper-arrow svg {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+/* Nav */
+
+.site-nav {
+    width: 100%;
+    height: 64px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 24px;
+
+    border-bottom: 1px solid var(--border);
+
+    background: var(--theme);
+
+    position: relative;
+    z-index: 100;
+}
+
+.site-nav.is-hidden {
+    display: none;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.site-nav__brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+
+    padding: 6px 8px;
+    margin: 0;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--text);
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    cursor: pointer;
+
+    transition:
+        opacity 160ms ease,
+        transform 160ms ease;
+}
+
+
+.site-nav__brand:hover {
+    opacity: 0.82;
+}
+
+
+.site-nav__brand:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   AKSA
+   ========================================================= */
+
+.site-nav__name {
+    font-size: 32px;
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: -0.035em;
+}
+
+
+/* =========================================================
+   OS
+   ========================================================= */
+
+.site-nav__type {
+    position: relative;
+    top: -1px;
+
+    font-size: 12px;
+    line-height: 1;
+
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    color: var(--secondary);
+}
+
+@media (max-width: 600px) {
+
+    .site-nav {
+        height: 56px;
+        padding: 0 14px;
+    }
+
+    .site-nav__name {
+        font-size: 19px;
+    }
+
+    .site-nav__type {
+        font-size: 9px;
+    }
+}
+
+/* Home Page */
+
+.playground-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+}
+
+.playground-section {
+    width: 100%;
+}
+
+.playground-section__header {
+    max-width: 720px;
+    margin-bottom: 2rem;
+}
+
+.playground-section__title {
+    margin: 0;
+
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+
+    color: var(--text-primary);
+}
+
+.playground-section__description {
+    margin: 0.65rem 0 0;
+
+    font-size: 0.95rem;
+    line-height: 1.6;
+
+    color: var(--text-secondary);
+}
+
+
+/* Cards belonging to a section */
+.playground-section .playground-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(220px, 1fr)
+    );
+
+    gap: 1rem;
+}
+
+.playground-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+}
+
+.playground-section__header {
+    max-width: 720px;
+    margin-bottom: 2rem;
+}
+
+.playground-section__title {
+    margin: 0;
+
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+
+    color: var(--text-primary);
+}
+
+.playground-section__description {
+    margin: 0.65rem 0 0;
+
+    font-size: 0.95rem;
+    line-height: 1.6;
+
+    color: var(--text-secondary);
+}
+
+.playground-section + .playground-section {
+    padding-top: 4rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.home-page {
+    /* width: min(1100px, 100%); */
+    margin: 0 auto;
+
+    padding: 72px 24px 80px;
+}
+
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.home-page__intro {
+    max-width: 680px;
+    margin: 0 auto 56px;
+
+    text-align: center;
+}
+
+.home-page__intro h1 {
+    margin: 0 0 16px;
+
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+
+    color: var(--text);
+}
+
+.home-page__intro p {
+    max-width: 600px;
+    margin: 0 auto;
+
+    font-size: 17px;
+    line-height: 1.65;
+
+    color: var(--secondary);
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.playground-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.playground-card {
+    position: relative;
+
+    min-height: 190px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    padding: 24px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--entry),
+            var(--code-bg)
+        );
+
+    color: var(--text);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+
+/*
+ * Subtle light across the top.
+ */
+
+.playground-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 18px;
+    right: 18px;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.10),
+            transparent
+        );
+}
+
+
+.playground-card:hover {
+    transform: translateY(-3px);
+
+    border-color: color-mix(
+        in srgb,
+        var(--primary) 45%,
+        var(--border)
+    );
+
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
+
+.playground-card:active {
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+.playground-card__icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 20px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--code-bg);
+
+    color: var(--primary);
+}
+
+
+.playground-card__icon svg {
+    width: 22px;
+    height: 22px;
+
+    fill: none;
+
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+.playground-card__body {
+    padding-right: 28px;
+}
+
+
+.playground-card h2 {
+    margin: 0 0 8px;
+
+    font-size: 18px;
+    line-height: 1.3;
+    font-weight: 700;
+
+    color: var(--text);
+}
+
+
+.playground-card p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color: var(--secondary);
+}
+
+
+/* =========================================================
+   ARROW
+   ========================================================= */
+
+.playground-card__arrow {
+    position: absolute;
+
+    right: 22px;
+    bottom: 22px;
+
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+
+    stroke: var(--secondary);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    transition:
+        transform 180ms ease,
+        color 180ms ease;
+}
+
+
+.playground-card:hover .playground-card__arrow {
+    transform: translateX(4px);
+
+    stroke: var(--primary);
+}
+
+@media (max-width: 700px) {
+
+    .home-page {
+        padding: 48px 18px 60px;
+    }
+
+    .home-page__intro {
+        margin-bottom: 36px;
+    }
+
+    .home-page__intro h1 {
+        font-size: 36px;
+    }
+
+    .home-page__intro p {
+        font-size: 15px;
+    }
+
+    .playground-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .playground-card {
+        min-height: 165px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 400px) {
+
+    .home-page {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .playground-card {
+        min-height: 150px;
+        padding: 18px;
+    }
+}
+
+/* Gates page */
+
+.gates-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Not Found Page */
+
+.not-found-page {
+    min-height: 70vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px 20px;
+
+    color: var(--text);
+}
+
+.not-found-page__content {
+    width: min(100%, 520px);
+
+    text-align: center;
+}
+
+.not-found-page__code {
+    margin-bottom: 8px;
+
+    font-size: clamp(72px, 15vw, 140px);
+    line-height: 0.9;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+
+    color: var(--primary);
+}
+
+.not-found-page h1 {
+    margin: 20px 0 10px;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.not-found-page p {
+    margin: 0 auto 28px;
+
+    max-width: 420px;
+
+    color: var(--secondary);
+    line-height: 1.6;
+}
+
+.not-found-page__home {
+    height: 42px;
+
+    padding: 0 18px;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    background: var(--entry);
+    color: var(--primary);
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        transform 140ms ease,
+        border-color 160ms ease,
+        background 160ms ease;
+}
+
+.not-found-page__home:hover {
+    border-color: var(--primary);
+    background: var(--code-bg);
+}
+
+.not-found-page__home:active {
+    transform: translateY(1px);
+}
+
+
+
+.circuit-card__viewport {
+    position: relative;
+}
+
+.circuit-card__zoom {
+
+position: absolute;
+
+z-index: 100;
+
+top: 1rem;
+
+right: 1rem;
+
+display: grid;
+
+grid-template-columns: repeat(3, 2.25rem);
+
+grid-template-rows: repeat(3, 2.25rem);
+
+gap: 0.3rem;
+
+padding: 0.4rem;
+
+border: 1px solid rgba(255, 255, 255, 0.08);
+
+border-radius: 0.65rem;
+
+background: rgba(15, 23, 42, 0.72);
+
+backdrop-filter: blur(8px);
+
+-webkit-backdrop-filter: blur(8px);
+
+opacity: 0.25;
+
+transition:
+
+    opacity 0.2s ease,
+
+background 0.2s ease;
+
+}
+
+.circuit-card__zoom:hover {
+    opacity: 1;
+
+    background: rgba(15, 23, 42, 0.9);
+}
+
+.circuit-card__zoom button {
+    width: 2.25rem;
+    height: 2.25rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.45rem;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    color: rgba(255, 255, 255, 0.8);
+
+    font-family: inherit;
+    font-size: 1.15rem;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        transform 0.1s ease;
+}
+
+.circuit-card__zoom button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+@media (max-width: 600px) {
+
+    .circuit-card__zoom {
+
+        --button-size: 1.5rem;
+        --icon-size: 0.5rem;
+
+        top: 0.1rem;
+        left: 50%;
+        right: auto;
+
+        transform: translateX(-50%);
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 0.3rem;
+
+        padding: 0.3rem;
+
+        border-radius: 0.7rem;
+    }
+
+
+    .circuit-card__zoom button {
+
+        width: var(--button-size);
+        height: var(--button-size);
+
+        flex-shrink: 0;
+
+        padding: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: var(--icon-size);
+    }
+}
+
+.zoom-in {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.zoom-out {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.pan-up {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.pan-left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.pan-right {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.pan-down {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.circuit-card__zoom button:active {
+    transform: scale(0.92);
+}
+
+.zoom-in,
+.zoom-out {
+    font-size: 1.3rem !important;
+}
+
+.circuit-card__viewport {
+    position: relative;
+    overflow: hidden;
 }
