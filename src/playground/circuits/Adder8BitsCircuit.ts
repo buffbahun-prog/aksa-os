@@ -1,5 +1,6 @@
 import { bit8Adder } from "../../virtual-machine/C.P.U/adders";
 import type { Bit, Bit8 } from "../../virtual-machine/types";
+import { binaryToDecimal } from "../../virtual-machine/utils/convertion";
 import type { ConnectorResult, TextResult, WireResult } from "../core/CircuitSvg";
 import { LevelledCircuit } from "../core/LevelledCircuit";
 import { FullAdderCircuit } from "./FullAdder";
@@ -61,9 +62,14 @@ export class Adder8BitsCircuit extends LevelledCircuit {
     // =========================================================
     private fullAdder: FullAdderCircuit[] = Array.from({length: 8});
 
+    private inp1DecimalText!: TextResult;
+    private inp2DecimalText!: TextResult;
+    private carryInDecimalText!: TextResult;
+    private sumWithCarryDecimalText!: TextResult;
+
     constructor(hide = false) {
 
-        super(2);
+        super(3);
 
         this.hideConnAndSwitch = hide;
 
@@ -87,6 +93,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.build1(this.level);
                 break;
         }
@@ -103,6 +110,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.update1();
                 break;
         }
@@ -360,15 +368,59 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
             this.view.setSwitchBit(switch3.switchId, this.carryInBit);
         }
+
+        if (!this.hideConnAndSwitch) {
+            this.inp1DecimalText = this.view.addText(
+                {
+                    x: 60,
+                    y: 300,
+                },
+                "Input A",
+                {fontSize: 20}
+            );
+
+            this.inp2DecimalText = this.view.addText(
+                {
+                    x: 60,
+                    y: 400,
+                },
+                "Input B",
+                {fontSize: 20}
+            );
+
+            this.carryInDecimalText = this.view.addText(
+                {
+                    x: 60,
+                    y: 500,
+                },
+                "Carry In",
+                {fontSize: 20}
+            );
+
+            this.sumWithCarryDecimalText = this.view.addText(
+                {
+                    x: 1050,
+                    y: 400,
+                },
+                "Sum",
+                {fontSize: 20},
+            );
+        }
     }
 
-    private build1(level: 1 | 2) {
+    private build1(level: 1 | 2 | 3) {
         const levelChangedx = level === 1 ? 0 : 110;
         const levelChangedy = level === 1 ? 0 : 8;
 
-        const levelChangedyw2 = level === 1 ? 0: 4;
+        const levelChangedyw2 = level === 1 ? 0 : level === 2 ? 4 : -9.2;
 
-        const levelChangedywv = level === 1 ? 0: 12;
+        const levelChangedywv = level === 1 ? 0: level === 2 ? 12 : 12;
+
+        const levelChangedywvh = level === 3 ? 14 : 0;
+
+        const levelChangedySwv = level === 3 ? 13.3 : 0;
+
+        const levelChangedyCOw = level === 3 ? 26.7 : 0;
 
         const fullAdderdx = level === 1 ? 0 : 56;
         const fullAdderdy = level === 1 ? 0 : 20;
@@ -382,7 +434,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                         x: 360 - levelChangedx,
                         y: 150 + (pin * shiftYBy) + levelChangedy,
                     },
-                    12,
+                    level === 3 ? 8 : 12,
                     (bit) => {
 
                         this.inpBit1[pin] =
@@ -397,7 +449,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                         x: 360 - levelChangedx,
                         y: 194 + (pin * shiftYBy) + levelChangedyw2,
                     },
-                    12,
+                    level === 3 ? 8 : 12,
                     (bit) => {
 
                         this.inpBit2[pin] =
@@ -437,19 +489,19 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 this.inpBitLabel1[pin] = this.view.addText(
                     {
                         x: 380 - levelChangedx,
-                        y: 130 + (pin * shiftYBy) + levelChangedy,
+                        y: 130 + (pin * shiftYBy) + levelChangedy  + (level === 3 ? 6 : 0),
                     },
                     "",
-                    {fontSize: 20},
+                    {fontSize: level === 3 ? 18 : 20},
                 );
 
                 this.inpBitLabel2[pin] = this.view.addText(
                     {
                         x: 380 - levelChangedx,
-                        y: 174 + (pin * shiftYBy) + levelChangedyw2,
+                        y: 174 + (pin * shiftYBy) + levelChangedyw2 + (level === 3 ? 6 : 0),
                     },
                     "",
-                    {fontSize: 20},
+                    {fontSize: level === 3 ? 18 : 20},
                 );
 
                 this.view.addText(
@@ -476,7 +528,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                             x: 470 - levelChangedx,
                             y: 106.35 + (pin * shiftYBy) + levelChangedywv,
                         },
-                        120,
+                        120 + levelChangedywvh,
                         "vert",
                         wireWidth
                     );
@@ -484,7 +536,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                     this.carryInWirevh[pin] = this.view.addWire(
                         {
                             x: 470 - levelChangedx,
-                            y: 106.35 + 120 + (pin * shiftYBy) + levelChangedywv,
+                            y: 106.35 + 120 + (pin * shiftYBy) + levelChangedywv + levelChangedywvh,
                         },
                         240 + levelChangedx,
                         "horz",
@@ -494,9 +546,9 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                     this.carryInWirevhv[pin] = this.view.addWire(
                         {
                             x: 709.9,
-                            y: 106.9 + 120 + (pin * shiftYBy) + levelChangedywv,
+                            y: 106.9 + 120 + (pin * shiftYBy) + levelChangedywv + levelChangedywvh,
                         },
-                        100 - levelChangedywv,
+                        100 - levelChangedywv + levelChangedywvh,
                         "vert",
                         wireWidth
                     );
@@ -516,7 +568,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
             this.outWireSum[pin] = this.view.addWire(
                 {
                     x: 710,
-                    y: 118 + (pin * shiftYBy),
+                    y: 118 + (pin * shiftYBy) + levelChangedySwv,
                 },
                 100,
                 "horz",
@@ -527,14 +579,14 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 this.outConnectorSum[pin] = this.view.addConnector(
                     {
                         x: 810,
-                        y: 117.8 + (pin * shiftYBy),
+                        y: 117.8 + (pin * shiftYBy) + levelChangedySwv,
                     }
                 );
 
                 this.outBitLabelSum[pin] = this.view.addText(
                     {
                         x: 810,
-                        y: 95 + (pin * shiftYBy),
+                        y: 95 + (pin * shiftYBy) + levelChangedySwv,
                     },
                     "",
                     {fontSize: 20}
@@ -543,7 +595,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 this.view.addText(
                     {
                         x: 850,
-                        y: 117.8 + (pin * shiftYBy),
+                        y: 117.8 + (pin * shiftYBy) + levelChangedySwv,
                     },
                     "S" + pin,
                     {fontSize: 20}
@@ -609,9 +661,9 @@ export class Adder8BitsCircuit extends LevelledCircuit {
         this.outWireCarryVert = this.view.addWire(
             {
                 x: 710,
-                y: 178.1,
+                y: 178.1 + levelChangedyCOw,
             },
-            -120,
+            -120 - levelChangedyCOw,
             "vert",
             wireWidth
         );
@@ -653,6 +705,43 @@ export class Adder8BitsCircuit extends LevelledCircuit {
             );
         }
 
+        if (!this.hideConnAndSwitch) {
+            this.inp1DecimalText = this.view.addText(
+                {
+                    x: 60,
+                    y: 500,
+                },
+                "Input A",
+                {fontSize: 20}
+            );
+
+            this.inp2DecimalText = this.view.addText(
+                {
+                    x: 60,
+                    y: 600,
+                },
+                "Input B",
+                {fontSize: 20}
+            );
+
+            this.carryInDecimalText = this.view.addText(
+                {
+                    x: 60,
+                    y: 700,
+                },
+                "Carry In",
+                {fontSize: 20}
+            );
+
+            this.sumWithCarryDecimalText = this.view.addText(
+                {
+                    x: 1050,
+                    y: 600,
+                },
+                "Sum",
+                {fontSize: 20},
+            );
+        }
     }
 
     private update0() {
@@ -709,6 +798,13 @@ export class Adder8BitsCircuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch)
             this.view.setTextBitAnimated(this.outBitLabelCarry.textId, carryOut);
 
+
+        if (!this.hideConnAndSwitch) {
+            this.view.setText(this.inp1DecimalText.textId, "Input A: " + binaryToDecimal(this.inpBit1).toString());
+            this.view.setText(this.inp2DecimalText.textId, "Input B: " + binaryToDecimal(this.inpBit2).toString());
+            this.view.setText(this.carryInDecimalText.textId, "Carry In: " + (this.carryInBit).toString());
+            this.view.setText(this.sumWithCarryDecimalText.textId, "Sum + Carryout: " + (binaryToDecimal([carryOut, ...sum])).toString());
+        }
     }
 
     private update1() {
@@ -788,6 +884,13 @@ export class Adder8BitsCircuit extends LevelledCircuit {
         );
 
         this.finalOut = [sum, carryOut];
+
+        if (!this.hideConnAndSwitch) {
+            this.view.setText(this.inp1DecimalText.textId, "Input A: " + binaryToDecimal(this.inpBit1).toString());
+            this.view.setText(this.inp2DecimalText.textId, "Input B: " + binaryToDecimal(this.inpBit2).toString());
+            this.view.setText(this.carryInDecimalText.textId, "Carry In: " + (this.carryInBit).toString());
+            this.view.setText(this.sumWithCarryDecimalText.textId, "Sum + Carryout: " + (binaryToDecimal([carryOut, ...sum])).toString());
+        }
     }
 
     // =========================================================

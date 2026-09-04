@@ -48,6 +48,33 @@ const sections: PlaygroundSection[] = [
     },
 
     {
+        title: "Selectors",
+        description:
+            "Experiment with multiplexers, demultiplexers and decoder circuits.",
+        route: "/playground/selectors",
+        icon: `
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                width="32"
+                height="32"
+            >
+                <path
+                    d="M4 4 L4 20 L16 16 L16 8 Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                />
+                <path d="M2 8 L4 8" stroke="currentColor" stroke-width="1.5" />
+                <path d="M2 16 L4 16" stroke="currentColor" stroke-width="1.5" />
+                <path d="M16 12 L22 12" stroke="currentColor" stroke-width="1.5" />
+                <path d="M10 18 L10 22" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+        `,
+    },
+
+    {
         title: "Arithmetic",
         description:
             "Experiment with adders, subtractors and arithmetic circuits.",
@@ -70,47 +97,154 @@ const sections: PlaygroundSection[] = [
         `,
     },
 
-    // {
-    //     title: "Shifters & Rotators",
-    //     description:
-    //         "Visualize barrel shifters, rotations and shift operations.",
-    //     route: "/playground/shifters",
-    //     icon: `
-    //         <svg
-    //             viewBox="0 0 24 24"
-    //             aria-hidden="true"
-    //         >
-    //             <path d="M5 8h10" />
-    //             <path d="m12 5 3 3-3 3" />
-    //             <path d="M19 16H9" />
-    //             <path d="m12 13-3 3 3 3" />
-    //         </svg>
-    //     `,
-    // },
+    {
+        title: "Shifters & Rotators",
+        description:
+            "Visualize barrel shifters, rotations and shift operations.",
+        route: "/playground/shifters",
+        icon: `
+           <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                width="32"
+                height="32"
+            >
+                <!-- shifter / rotator body -->
+                <rect
+                    x="5"
+                    y="5"
+                    width="14"
+                    height="14"
+                    rx="1"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                />
 
-    // {
-    //     title: "ALU",
-    //     description:
-    //         "Build toward a complete arithmetic and logic unit.",
-    //     route: "/playground/alu",
-    //     icon: `
-    //         <svg
-    //             viewBox="0 0 24 24"
-    //             aria-hidden="true"
-    //         >
-    //             <rect
-    //                 x="4"
-    //                 y="4"
-    //                 width="16"
-    //                 height="16"
-    //                 rx="3"
-    //             />
-    //             <path d="M8 9h8" />
-    //             <path d="M8 12h8" />
-    //             <path d="M8 15h5" />
-    //         </svg>
-    //     `,
-    // },
+                <!-- inputs -->
+                <path d="M2 8 L5 8" stroke="currentColor" stroke-width="1.5" />
+                <path d="M2 12 L5 12" stroke="currentColor" stroke-width="1.5" />
+                <path d="M2 16 L5 16" stroke="currentColor" stroke-width="1.5" />
+
+                <!-- output -->
+                <path d="M19 12 L22 12" stroke="currentColor" stroke-width="1.5" />
+
+                <!-- shift/rotate arrows -->
+                <path
+                    d="M8 9 L16 9"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                />
+                <path
+                    d="M14 7 L16 9 L14 11"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linejoin="round"
+                />
+
+                <path
+                    d="M16 15 L8 15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                />
+                <path
+                    d="M10 13 L8 15 L10 17"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linejoin="round"
+                />
+
+                <!-- control -->
+                <path d="M12 19 L12 22" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+        `,
+    },
+
+    {
+        title: "ALU",
+        description:
+            "Build toward a complete arithmetic and logic unit.",
+        route: "/playground/alu",
+        icon: `
+       <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    width="32"
+    height="32"
+>
+    <!-- ALU body -->
+    <path
+        d="M6 3 H18 L20 21 H4 Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linejoin="round"
+    />
+
+    <!-- input buses -->
+    <path
+        d="M1.5 7 H5"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+    />
+    <path
+        d="M1.5 12 H5"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+    />
+    <path
+        d="M1.5 17 H5"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+    />
+
+    <!-- output -->
+    <path
+        d="M19 12 H22.5"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+    />
+
+    <!-- control -->
+    <path
+        d="M12 21 V23"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+    />
+
+    <!-- internal circuit structure -->
+    <path
+        d="M9 7 H15 M9 9 H15"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+    />
+
+    <path
+        d="M9 12 H15"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+    />
+
+    <path
+        d="M9 15 H15 M9 17 H15"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+    />
+</svg>
+        `,
+    },
 
 ],
     },

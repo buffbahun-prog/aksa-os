@@ -363,6 +363,7 @@ export class FullAdderCircuit extends LevelledCircuit {
     }
 
     private build1() {
+        const wireWidth = 2.8;
         if (!this.hideConnAndSwitch) {
             const switch1 = this.view.addSwitch(
                 {
@@ -473,11 +474,11 @@ export class FullAdderCircuit extends LevelledCircuit {
         this.carryInWire = this.view.addWire(
             {
                 x: 165,
-                y: 120.25,
+                y: 120.4,
             },
             330,
             "horz",
-            3
+            wireWidth
         );
 
         this.inpWire1 = this.view.addWire(
@@ -487,7 +488,7 @@ export class FullAdderCircuit extends LevelledCircuit {
             },
             20,
             "horz",
-            3
+            wireWidth
         );
 
         this.inpWire2 = this.view.addWire(
@@ -497,7 +498,7 @@ export class FullAdderCircuit extends LevelledCircuit {
             },
             20,
             "horz",
-            3
+            wireWidth
         );
 
         this.halfAdderCarryOut = new HalfAdderCircuit(true);
@@ -527,7 +528,7 @@ export class FullAdderCircuit extends LevelledCircuit {
             },
             300,
             "horz",
-            3
+            wireWidth
         );
 
         this.view.addOrGate(
@@ -543,12 +544,12 @@ export class FullAdderCircuit extends LevelledCircuit {
 
         this.outWireSum = this.view.addWire(
             {
-                x: 889.1,
-                y: 120.2,
+                x: 888.8,
+                y: 120.4,
             },
             150,
             "horz",
-            3
+            wireWidth
         );
 
         if (!this.hideConnAndSwitch) {
@@ -586,6 +587,7 @@ export class FullAdderCircuit extends LevelledCircuit {
             },
             80,
             "horz",
+            wireWidth
         );
 
         if (!this.hideConnAndSwitch) {
@@ -618,6 +620,7 @@ export class FullAdderCircuit extends LevelledCircuit {
     }
 
     private build2() {
+        const wireWidth = 2.8;
         if (!this.hideConnAndSwitch) {
             const switch1 = this.view.addSwitch(
                 {
@@ -728,28 +731,31 @@ export class FullAdderCircuit extends LevelledCircuit {
         this.carryInWire = this.view.addWire(
             {
                 x: 165,
-                y: 120,
+                y: 120.3,
             },
             365,
             "horz",
+            wireWidth
         );
 
         this.inpWire1 = this.view.addWire(
             {
                 x: 165,
-                y: 220,
+                y: 219.8,
             },
             20,
             "horz",
+            wireWidth
         );
 
         this.inpWire2 = this.view.addWire(
             {
                 x: 165,
-                y: 286.5,
+                y: 286.3,
             },
             20,
             "horz",
+            wireWidth
         );
 
         this.halfAdderCarryOut = new HalfAdderCircuit(true);
@@ -760,7 +766,7 @@ export class FullAdderCircuit extends LevelledCircuit {
         );
 
         this.halfAdderCarryOut.getView.resize(.665);
-        this.halfAdderCarryOut.getView.moveBy(0, 140);
+        this.halfAdderCarryOut.getView.moveBy(2, 140);
 
         this.inpHalfAdder2Wirev = this.view.addWire(
             {
@@ -769,6 +775,7 @@ export class FullAdderCircuit extends LevelledCircuit {
             },
             64,
             "vert",
+            wireWidth,
         );
 
         this.halfAdderSum = new HalfAdderCircuit(true);
@@ -783,11 +790,12 @@ export class FullAdderCircuit extends LevelledCircuit {
 
         this.inpOrWire = this.view.addWire(
             {
-                x: 530,
+                x: 530.4,
                 y: 386,
             },
             330,
             "horz",
+            wireWidth
         );
 
         this.view.addOrGate(
@@ -808,6 +816,7 @@ export class FullAdderCircuit extends LevelledCircuit {
             },
             150,
             "horz",
+            wireWidth
         );
 
         if (!this.hideConnAndSwitch) {
@@ -845,6 +854,7 @@ export class FullAdderCircuit extends LevelledCircuit {
             },
             80,
             "horz",
+            wireWidth
         );
 
         if (!this.hideConnAndSwitch) {

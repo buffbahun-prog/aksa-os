@@ -1,7 +1,7 @@
-import type { Bit, Bit2, Bit3, Bit32, Bit4, Bit5 } from "../types";
+import type { Bit, Bit2, Bit3, Bit32, Bit4, Bit8 } from "../types";
 import { fullAdder } from "./adders";
 import { andGate, andGateNInp, inverter, norGateNInp, orGate, xorGate } from "./gates";
-import { mux2To1, mux4To1, mux8To1 } from "./mux_demux";
+import { mux2To1, mux4To1 } from "./mux_demux";
 
 // control signals
 // [ input 1 invert, input 2 invert/negetive, ...operations(2 bit)]
@@ -39,120 +39,159 @@ export function aluBit1(carryIn: Bit, inp1: Bit, inp2: Bit, controlBits: Bit4): 
 }
 
 
-// 000 -> AND   A & B
-// 001 -> OR    A | B
-// 010 -> XOR   A ^ B
-// 011 -> NOT   ~A
-// 100 -> ADD   A + B
-// 101 -> SUB   A - B
-// 110 -> SLT   A < B (signed)
-// 111 -> SLTU  A < B (unsigned)
+// 000 -> AND     A & B
+// 001 -> OR      A | B
+// 010 -> XOR     A ^ B
+// 011 -> PASS_B  B
+// 100 -> ADD     A + B
+// 101 -> SUB     A - B
+// 110 -> SLT     A < B (signed)
+// 111 -> SLTU    A < B (unsigned)
 export function ALU(inp1: Bit32, inp2: Bit32, controlBits: Bit3): [result: Bit32, carryOut: Bit, overflow: Bit, zero: Bit] {
 
     // map
-    // AND  000 --> [0,0,0,0]
-    // OR   001 --> [0,0,0,1]
-    // XOR  010 --> [0,0,1,0]
-    // NOT  011 --> [1,0,0,0] B all 1
-    // ADD  100 --> [0,0,1,1]
-    // SUB  101 --> [0,1,1,1] CarryIn = 1
-    // SLT  110 --> [0,1,1,1] CarryIn = 1, lsb = carryOut/borrow and rest 0
-    // SLTU 111 --> [0,1,1,1] CarryIn = 1, lsb = overflow xor msb and rest 0
+    // AND     000 --> [0,0,0,0]
+    // OR      001 --> [0,0,0,1]
+    // XOR     010 --> [0,0,1,0]
+    // PASS_B  011 --> [0,0,1,1] final mux pass B
+    // ADD     100 --> [0,0,1,1]
+    // SUB     101 --> [0,1,1,1] CarryIn = 1
+    // SLT     110 --> [0,1,1,1] CarryIn = 1, lsb = carryOut/borrow and rest 0
+    // SLTU    111 --> [0,1,1,1] CarryIn = 1, lsb = overflow xor msb and rest 0
 
-    const isNotOp = andGateNInp([inverter(controlBits[0]), controlBits[1], controlBits[2]]);
-    const isXorOp = andGateNInp([inverter(controlBits[0]), controlBits[1], inverter(controlBits[2])]);
-    const isOrOp = andGateNInp([inverter(controlBits[0]), inverter(controlBits[1]), controlBits[2]]);
+   const mappedAluCode = [
+    0,
+    andGate(controlBits[0], orGate(controlBits[1], controlBits[2])),
+    orGate(controlBits[0], controlBits[1]),
+    orGate(controlBits[0], controlBits[2]),
+   ] as Bit4;
 
-    const isSubOp = andGate(controlBits[0], orGate(controlBits[1], controlBits[2]));
+   const negateB = mappedAluCode[1];
+   const carryIn = negateB;
 
-    const bitAluControlBits = [
-        isNotOp,
-        isSubOp,
-        orGate(isXorOp, controlBits[0]),
-        orGate(isOrOp, controlBits[0]),
-    ] as Bit4;
+   let msbCarryOut = carryIn;
+   let msbCarryIn = carryIn;
 
-    const carryIn = isSubOp;
+   const aluResult = Array.from({length: 32}) as Bit32;
 
-    let rippleCarryIn = carryIn;
-    let rippleCarryOut = carryIn;
+   for (let i = 31; i >= 0; i--) {
+    const a = inp1[i];
+    const b = inp2[i];
 
-    const bitAluResult: Bit[] = [];
+    const [result, carryOut] = aluBit1(msbCarryOut, a, b, mappedAluCode);
+    msbCarryIn = msbCarryOut;
+    msbCarryOut = carryOut;
 
-    for (let i = 31; i >= 0; i--) {
-        const [resultBit, carryOut] = aluBit1(
-            rippleCarryOut,
-            inp1[i],
-            orGate(inp2[i], isNotOp), // if NOT operation, input 2 set all to Bit 1 
-            bitAluControlBits,
-        );
+    aluResult[i] = result;
+   }
 
-        bitAluResult.unshift(resultBit);
+   const carryOut = msbCarryOut;
 
-        rippleCarryIn = rippleCarryOut;
-        rippleCarryOut = carryOut;
-    }
+   const overflow = xorGate(msbCarryIn, msbCarryOut);
 
-    const carryOut = rippleCarryOut;
+   const signedLess = xorGate(
+        aluResult[0],
+        overflow,
+    );
 
-    const overflow = xorGate(rippleCarryIn, rippleCarryOut);
+   const unsignedLess = inverter(carryOut);
 
-    const isLessThanOp = andGate(isSubOp, controlBits[1]);
-    const isSltOp = andGate(isLessThanOp, inverter(controlBits[2]));
-    const isSltuOp = andGate(isLessThanOp, controlBits[2]);
+   const isLess = mux2To1(
+        signedLess,
+        unsignedLess,
+        controlBits[2],
+   );
 
-    const msb = bitAluResult[0];
-    const result = bitAluResult.map((bit, indx) => {
-        const isLessThanForUnsigned = xorGate(isSubOp, carryOut);
-        const isLessThanForSigned = xorGate(msb, overflow);
-        const isSignedOp = andGate(isSltOp, inverter(isSltuOp));
-        const isLessThan = mux2To1(isLessThanForSigned, isLessThanForUnsigned, isSignedOp);
-        return indx < 31 ? andGate(isLessThanOp, bit) : mux2To1(bit, isLessThan, isLessThanOp);
-    }) as Bit32;
+   const issltOp = andGate(negateB, controlBits[1]);
 
-    const zero = norGateNInp(result);
+   const aluResultExceptLsb = aluResult.slice(0, 31);
+   const aluResultLsb = aluResult[31];
 
-    return [result, carryOut, overflow, zero];
+   const afterSltResult = [
+    ...aluResultExceptLsb.map(bit => andGate(issltOp, bit)),
+    mux2To1(aluResultLsb, isLess, issltOp),
+   ] as Bit32;
+
+   const isPassBOp = andGateNInp([
+    inverter(controlBits[0]),
+    controlBits[1],
+    controlBits[2],
+   ]);
+
+   const finalResult = afterSltResult.map((bit, indx) => mux2To1(
+    bit,
+    inp2[indx],
+    isPassBOp,
+   )) as Bit32;
+
+   return [finalResult, carryOut, overflow, norGateNInp(finalResult)];
 }
 
-// export function aluMSB(carryIn: Bit, inp1: Bit, inp2: Bit, controlBits: Bit5): [result: Bit, carryOut: Bit, overflow: Bit] {
-//     const inp1Invert = controlBits[0];
-//     const inp2Invert = controlBits[1];
-//     const operationBits = controlBits.slice(2) as Bit3;
+export function ALU8Bit(inp1: Bit8, inp2: Bit8, controlBits: Bit3): [result: Bit8, carryOut: Bit, overflow: Bit, zero: Bit] {
+   const mappedAluCode = [
+    0,
+    andGate(controlBits[0], orGate(controlBits[1], controlBits[2])),
+    orGate(controlBits[0], controlBits[1]),
+    orGate(controlBits[0], controlBits[2]),
+   ] as Bit4;
 
-//     const inp1Transformed = xorGate(inp1, inp1Invert);
-//     const inp2Transformed = xorGate(inp2, inp2Invert);
+   const negateB = mappedAluCode[1];
+   const carryIn = negateB;
 
-//     const andResult = andGate(inp1Transformed, inp2Transformed);
-//     const orResult = orGate(inp1Transformed, inp2Transformed);
-//     const xorResult = xorGate(inp1Transformed, inp2Transformed);
+   let msbCarryOut = carryIn;
+   let msbCarryIn = carryIn;
 
-//     const [addResult, carryOut] = fullAdder(carryIn, inp1Transformed, inp2Transformed);
-//     const overflow = xorGate(carryIn, carryOut);
+   const aluResult = Array.from({length: 8}) as Bit8;
 
-//     const sltResult = less;
-//     const sltuResult = less;
+   for (let i = 7; i >= 0; i--) {
+    const a = inp1[i];
+    const b = inp2[i];
 
-//     const set = mux2To1(
-//         xorGate(addResult, overflow),
-//         inverter(carryOut),
-//         andGateNInp([operationBits[0], inverter(operationBits[1]), operationBits[2]]),
-//     );
+    const [result, carryOut] = aluBit1(msbCarryOut, a, b, mappedAluCode);
+    msbCarryIn = msbCarryOut;
+    msbCarryOut = carryOut;
 
-//     const result = mux8To1(
-//         [
-//             0,
-//             andResult,
-//             orResult,
-//             xorResult,
-//             addResult,
-//             sltResult,
-//             sltuResult,
-//             0
-//         ]
-//         ,
-//         operationBits
-//     );
+    aluResult[i] = result;
+   }
 
-//     return [result, carryOut, overflow, set];
-// }
+   const carryOut = msbCarryOut;
+
+   const overflow = xorGate(msbCarryIn, msbCarryOut);
+
+   const signedLess = xorGate(
+        aluResult[0],
+        overflow,
+    );
+
+   const unsignedLess = inverter(carryOut);
+
+   const isLess = mux2To1(
+        signedLess,
+        unsignedLess,
+        controlBits[2],
+   );
+
+   const issltOp = andGate(negateB, controlBits[1]);
+
+   const aluResultExceptLsb = aluResult.slice(0, 7);
+   const aluResultLsb = aluResult[7];
+
+   const afterSltResult = [
+    ...aluResultExceptLsb.map(bit => andGate(issltOp, bit)),
+    mux2To1(aluResultLsb, isLess, issltOp),
+   ] as Bit8;
+
+   const isPassBOp = andGateNInp([
+    inverter(controlBits[0]),
+    controlBits[1],
+    controlBits[2],
+   ]);
+
+   const finalResult = afterSltResult.map((bit, indx) => mux2To1(
+    bit,
+    inp2[indx],
+    isPassBOp,
+   )) as Bit8;
+
+   return [finalResult, carryOut, overflow, norGateNInp(finalResult)];
+}

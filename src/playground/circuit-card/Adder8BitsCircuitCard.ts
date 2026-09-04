@@ -50,6 +50,15 @@ export class Adder8BitsCircuitCard
                     zoom: 0.55,
                 },
 
+                {
+                    position: {
+                        x: -550,
+                        y: -45,
+                    },
+
+                    zoom: 0.55,
+                },
+
             ],
 
         };

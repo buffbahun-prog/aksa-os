@@ -59,6 +59,7 @@ h2 {
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
+  line-height: 1.2;
 }
 
 h1 {
@@ -1945,11 +1946,6 @@ background 0.2s ease;
 
 .circuit-card__zoom button:active {
     transform: scale(0.92);
-}
-
-.zoom-in,
-.zoom-out {
-    font-size: 1.3rem !important;
 }
 
 .circuit-card__viewport {

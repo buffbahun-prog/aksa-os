@@ -1,4 +1,5 @@
 import type { Bit } from "../../virtual-machine/types";
+import { counters } from "./CircuitPremitiveIds";
 
 export interface Position {
     x: number;
@@ -40,6 +41,12 @@ type GateType =
     | "nor"
     | "not";
 
+type GateOrientation =
+    | "right"
+    | "left"
+    | "up"
+    | "down";
+
 export interface TextResult {
     textId: string;
 }
@@ -62,12 +69,6 @@ export interface BoxStyle {
 export class CircuitSvg {
 
     private readonly group: SVGGElement;
-
-    private gateCounter = 0;
-    private boxCounter = 0;
-    private wireCounter = 0;
-    private connectorCounter = 0;
-    private switchCounter = 0;
 
     // =========================================================
     // COLORS
@@ -141,23 +142,23 @@ export class CircuitSvg {
     // =========================================================
 
     private createGateId(): string {
-        return `gate-${this.gateCounter++}`;
+        return `gate-${counters.gate++}`;
     }
 
     private createBoxId(): string {
-        return `box-${this.boxCounter++}`;
+        return `box-${counters.box++}`;
     }
 
     private createWireId(): string {
-        return `wire-${this.wireCounter++}`;
+        return `wire-${counters.wire++}`;
     }
 
     private createConnectorId(): string {
-        return `connector-${this.connectorCounter++}`;
+        return `connector-${counters.connector++}`;
     }
 
     private createSwitchId(): string {
-        return `switch-${this.switchCounter++}`;
+        return `switch-${counters.switch++}`;
     }
 
     // =========================================================
@@ -450,6 +451,7 @@ export class CircuitSvg {
         position: Position,
         size: Size,
         display = true,
+        orientation?: GateOrientation
     ): GateResult {
 
         return this.addGate(
@@ -457,6 +459,7 @@ export class CircuitSvg {
             position,
             size,
             display,
+            orientation,
         );
     }
 
@@ -465,83 +468,111 @@ export class CircuitSvg {
     // =========================================================
 
     private addGate(
-        type: GateType,
-        position: Position,
-        size: Size,
-        display = true,
-    ): GateResult {
+    type: GateType,
+    position: Position,
+    size: Size,
+    display = true,
+    orientation: GateOrientation = "right",
+): GateResult {
 
-        const gateId =
-            this.createGateId();
+    const gateId =
+        this.createGateId();
 
-        const group =
-            this.createSvgElement("g");
+    const group =
+        this.createSvgElement("g");
 
-        group.id = gateId;
+    group.id = gateId;
 
-        group.dataset.type =
-            type;
+    group.dataset.type =
+        type;
 
-        if (!display) group.setAttribute("display", "none");
-
+    if (!display) {
         group.setAttribute(
-            "transform",
-            `translate(${position.x}, ${position.y})`,
+            "display",
+            "none",
         );
-
-        switch (type) {
-
-            case "and":
-                this.drawAndGate(
-                    group,
-                    size,
-                );
-                break;
-
-            case "or":
-                this.drawOrGate(
-                    group,
-                    size,
-                );
-                break;
-
-            case "xor":
-                this.drawXorGate(
-                    group,
-                    size,
-                );
-                break;
-
-            case "nand":
-                this.drawNandGate(
-                    group,
-                    size,
-                );
-                break;
-
-            case "nor":
-                this.drawNorGate(
-                    group,
-                    size,
-                );
-                break;
-
-            case "not":
-                this.drawNotGate(
-                    group,
-                    size,
-                );
-                break;
-        }
-
-        this.group.appendChild(
-            group,
-        );
-
-        return {
-            gateId,
-        };
     }
+
+    // Draw everything in local coordinates.
+    // Local origin is the center of the gate.
+    group.setAttribute(
+        "transform",
+        this.getGateTransform(
+            position,
+            orientation,
+        ),
+    );
+
+    switch (type) {
+
+        case "and":
+            this.drawAndGate(
+                group,
+                size,
+            );
+            break;
+
+        case "or":
+            this.drawOrGate(
+                group,
+                size,
+            );
+            break;
+
+        case "xor":
+            this.drawXorGate(
+                group,
+                size,
+            );
+            break;
+
+        case "nand":
+            this.drawNandGate(
+                group,
+                size,
+            );
+            break;
+
+        case "nor":
+            this.drawNorGate(
+                group,
+                size,
+            );
+            break;
+
+        case "not":
+            this.drawNotGate(
+                group,
+                size,
+            );
+            break;
+    }
+
+    this.group.appendChild(
+        group,
+    );
+
+    return {
+        gateId,
+    };
+}
+
+private getGateTransform(
+    position: Position,
+    orientation: GateOrientation,
+): string {
+
+    const angle =
+        orientation === "right" ? 0 :
+        orientation === "down"  ? 90 :
+        orientation === "left"  ? 180 :
+        270;
+
+    return `
+        translate(${position.x}, ${position.y})
+        rotate(${angle})
+    `;
+}
 
     // =========================================================
     // AND
