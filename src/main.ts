@@ -31,7 +31,7 @@ if (!navElement) {
 }
 
 
-const siteNav =
+// const siteNav =
     new SiteNav(
         navElement,
         router,

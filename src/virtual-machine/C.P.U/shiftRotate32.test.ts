@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { shiftRotate32 } from "./shiftRotate32";
-import type { Bit, Bit3, Bit32, Bit6 } from "../types";
+import type { Bit, Bit3, Bit32 } from "../types";
 
 const bit = (n: number): Bit => (n ? 1 : 0);
 
