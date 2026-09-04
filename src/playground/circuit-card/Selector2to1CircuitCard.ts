@@ -34,7 +34,7 @@ export class Selector2to1CircuitCard
                 {
                     position: {
                         x: 0,
-                        y: 0,
+                        y: -30,
                     },
 
                     zoom: 1,
@@ -51,8 +51,5 @@ export class Selector2to1CircuitCard
             1200,
             600,
         );
-
-        // temp
-        this.setLevel(1);
     }
 }
