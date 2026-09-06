@@ -1,9 +1,11 @@
 import { Selector2to1CircuitCard } from "../../../playground/circuit-card/Selector2to1CircuitCard";
+import { Selector4to1CircuitCard } from "../../../playground/circuit-card/Selector4to1CircuitCard";
 import { Page, type PageContext } from "../../../router/Page";
 
 export class SelectorsPage extends Page {
 
     private readonly selector2to1Card: Selector2to1CircuitCard;
+    private readonly selector4to1Card: Selector4to1CircuitCard;
 
 
     constructor(
@@ -45,6 +47,7 @@ export class SelectorsPage extends Page {
 
 
         this.selector2to1Card = new Selector2to1CircuitCard();
+        this.selector4to1Card = new Selector4to1CircuitCard();
     }
 
 
@@ -71,6 +74,9 @@ export class SelectorsPage extends Page {
             case "selector2to1":
                 card = this.selector2to1Card.getTemplateClone();
                 break;
+            case "selector4to1":
+                card = this.selector4to1Card.getTemplateClone();
+                break;
         }
 
         if (showCircuit) {
@@ -90,6 +96,7 @@ export class SelectorsPage extends Page {
             }
             const gatesList = [
                 {tmpl: this.selector2to1Card.getTemplateClone(), h2: "2 to 1 Selector"},
+                {tmpl: this.selector4to1Card.getTemplateClone(), h2: "4 to 1 Selector"},
             ];
             gatesList.forEach(gl => {
                 if (!gl.tmpl) return;

@@ -1,13 +1,13 @@
-import { andGate, inverter, orGateNInp } from "../../virtual-machine/C.P.U/gates";
-import { mux2To1 } from "../../virtual-machine/C.P.U/mux_demux";
-import type { Bit } from "../../virtual-machine/types";
+import { andGateNInp, inverter, orGateNInp } from "../../virtual-machine/C.P.U/gates";
+import { mux4To1 } from "../../virtual-machine/C.P.U/mux_demux";
+import type { Bit, Bit2, Bit4 } from "../../virtual-machine/types";
 import type { ConnectorResult, TextResult, WireResult } from "../core/CircuitSvg";
 import { LevelledCircuit } from "../core/LevelledCircuit";
 
-export class Selector2to1Circuit extends LevelledCircuit {
+export class Selector4to1Circuit extends LevelledCircuit {
 
-    private totalDataInput = 2;
-    private totalSelectInput = 1;
+    private totalDataInput = 4;
+    private totalSelectInput = 2;
 
     private inpDataBit: Bit[] = Array.from({length: this.totalDataInput}).fill(0) as Bit[];
     private inpSelectBit: Bit[] = Array.from({length: this.totalSelectInput}).fill(0) as Bit[];
@@ -33,12 +33,19 @@ export class Selector2to1Circuit extends LevelledCircuit {
     private inpSelectWire: WireResult[] = Array.from({length: this.totalSelectInput});
 
     private inpSelectWireh: WireResult[] = Array.from({length: this.totalSelectInput});
-    private inpSelectWirehv: WireResult[] = Array.from({length: this.totalSelectInput});
-    private inpSelectWirehvh: WireResult[] = Array.from({length: this.totalSelectInput});
+    private inpSelectWirevh: WireResult[] = Array.from({length: this.totalSelectInput});
+    // private inpSelectWirehvh: WireResult[] = Array.from({length: this.totalSelectInput});
     private inpSelectWirehvn1: WireResult[] = Array.from({length: this.totalSelectInput});
     private inpSelectWirehvn2: WireResult[] = Array.from({length: this.totalSelectInput});
     private inpSelectWirehvnh2: WireResult[] = Array.from({length: this.totalSelectInput});
     private inpSelectConnNot: ConnectorResult[] = Array.from({length: this.totalSelectInput});
+
+    private inpSelectJoinConn: ConnectorResult[] = Array.from({length: this.totalSelectInput});
+    private inpSelectJoinConnNot: ConnectorResult[] = Array.from({length: this.totalSelectInput});
+
+    private inpSelectJoinWire: WireResult[] = Array.from({length: this.totalSelectInput});
+    private inpSelectJoinWireNot: WireResult[] = Array.from({length: this.totalSelectInput});
+
 
     // =========================================================
     // OUTPUT
@@ -100,29 +107,29 @@ export class Selector2to1Circuit extends LevelledCircuit {
         this.view.addBox(
             {
                 x: 600,
-                y: 300,
+                y: 400,
             },
             {
-                width: 200,
-                height: 300,
+                width: 400,
+                height: 600,
             }
         );
 
         this.view.addText(
             {
                 x: 600,
-                y: 300,
+                y: 400,
             },
-            "2 X 1 Selector",
+            "4 X 1 Selector",
             {
-                fontSize: 25,
+                fontSize: 30,
                 orientation: "vert"
             }
         );
 
-        const wireDataStartX = 390;
-        const wireDataStartY = 250;
-        const wireDataShiftY = 100;
+        const wireDataStartX = 290;
+        const wireDataStartY = 200;
+        const wireDataShiftY = 150;
         for (let pin = 0; pin < this.totalDataInput; pin++) {
 
             this.inpDataWire[pin] = this.view.addWire(
@@ -176,8 +183,8 @@ export class Selector2to1Circuit extends LevelledCircuit {
             }
         }
 
-        const wireSelStartX = 600;
-        const wireSelStartY = 80;
+        const wireSelStartX = 450;
+        const wireSelStartY = 30;
         const wireSelShiftX = 100;
         for (let pin = 0; pin < this.totalSelectInput; pin++) {
 
@@ -234,8 +241,8 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
         this.view.addText(
             {
-                x: 675,
-                y: 300,
+                x: 775,
+                y: 400,
             },
             "Q",
             {
@@ -245,8 +252,8 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
         this.outWire = this.view.addWire(
             {
-                x: 703,
-                y: 300,
+                x: 803,
+                y: 400,
             },
             106,
             "horz",
@@ -255,15 +262,15 @@ export class Selector2to1Circuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             this.outConnector = this.view.addConnector(
                 {
-                    x: 703 + 106,
-                    y: 300,
+                    x: 703 + 206,
+                    y: 400,
                 }
             );
 
             this.outBitLabel = this.view.addText(
                 {
-                    x: 703 + 106 + 20,
-                    y: 300 - 20,
+                    x: 803 + 106 + 20,
+                    y: 400 - 20,
                 },
                 "",
                 {
@@ -275,9 +282,32 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
     private build1() {
 
-        const wireDataStartX = 390;
-        const wireDataStartY = 250;
-        const wireDataShiftY = 100;
+        const wireDataStartX = 290;
+        const wireDataStartY = 200;
+        const wireDataShiftY = 150;
+        const xExtend = 170;
+        const andOutWireLen = [
+            {
+                h: 60,
+                v: 140,
+                vh: 62,
+            },
+            {
+                h: 40,
+                v: 20,
+                vh: 87,
+            },
+            {
+                h: 40,
+                v: -100,
+                vh: 87,
+            },
+            {
+                h: 60,
+                v: -220,
+                vh: 62,
+            }
+        ]
         for (let pin = 0; pin < this.totalDataInput; pin++) {
 
             this.inpDataWire[pin] = this.view.addWire(
@@ -285,7 +315,7 @@ export class Selector2to1Circuit extends LevelledCircuit {
                     x: wireDataStartX,
                     y: wireDataStartY + (pin * wireDataShiftY),
                 },
-                106,
+                106 + xExtend,
                 "horz",
             );
 
@@ -333,7 +363,7 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
             this.view.addAndGate(
                 {
-                    x: wireDataStartX + 150,
+                    x: wireDataStartX + 150 + xExtend,
                     y: wireDataStartY + 20 + (pin * wireDataShiftY)
                 },
                 {
@@ -344,35 +374,43 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
             this.outAndWireh[pin] =  this.view.addWire(
                 {
-                    x: wireDataStartX + 150 + 43,
+                    x: wireDataStartX + 150 + 43 + xExtend,
                     y: wireDataStartY + 20 + (pin * wireDataShiftY)
                 },
-                20,
+                andOutWireLen[pin].h,
                 "horz"
             );
 
             this.outAndWirehv[pin] = this.view.addWire(
                 {
-                    x: wireDataStartX + 150 + 43 + 20,
+                    x: wireDataStartX + 150 + 43 + xExtend + andOutWireLen[pin].h,
                     y: wireDataStartY + 20 + (pin * wireDataShiftY)
                 },
-                pin === 0 ? 20 : -50,
+                andOutWireLen[pin].v,
                 "vert"
             );
 
             this.outAndWirehvh[pin] = this.view.addWire(
                 {
-                    x: wireDataStartX + 150 + 43 + 20,
-                    y: wireDataStartY + 20 + (pin * wireDataShiftY) + (pin === 0 ? 20 : -50)
+                    x: wireDataStartX + 150 + 43 + xExtend + andOutWireLen[pin].h,
+                    y: wireDataStartY + 20 + (pin * wireDataShiftY) + andOutWireLen[pin].v
                 },
-                80,
+                andOutWireLen[pin].vh,
                 "horz"
             );
         }
 
-        const wireSelStartX = 600;
-        const wireSelStartY = 80;
+        const wireSelStartX = 450;
+        const wireSelStartY = 30;
         const wireSelShiftX = 100;
+        const sLenList = [
+            {v:660, vh: wireSelShiftX + 16, h:30, nh: -50, nhv: 220, nhvh: 50 + wireSelShiftX + 16},
+            {v: 660 - 20, vh:16, h: 30 + wireSelShiftX, nh: -50, nhv: 370, nhvh: 50 + 16}
+        ]
+        const joinPosAndLen = [
+            {ry: 495, h: wireSelShiftX + 16, nry: 60, nh: wireSelShiftX + 16 + 50},
+            {ry: 345, h: 16, nry: 40, nh: 16 + 50},
+        ];
         for (let pin = 0; pin < this.totalSelectInput; pin++) {
 
             this.inpSelectWire[pin] = this.view.addWire(
@@ -380,8 +418,33 @@ export class Selector2to1Circuit extends LevelledCircuit {
                     x: wireSelStartX + (pin * wireSelShiftX),
                     y: wireSelStartY,
                 },
-                66,
+                sLenList[pin].v,
                 "vert",
+            );
+
+            this.inpSelectJoinConn[pin] = this.view.addConnector(
+                {
+                    x: wireSelStartX + (pin * wireSelShiftX),
+                    y: wireSelStartY  + joinPosAndLen[pin].ry,
+                }
+            );
+
+            this.inpSelectJoinWire[pin] = this.view.addWire(
+                {
+                    x: wireSelStartX + (pin * wireSelShiftX),
+                    y: wireSelStartY  + joinPosAndLen[pin].ry,
+                },
+                joinPosAndLen[pin].h,
+                "horz",
+            );
+
+            this.inpSelectWirevh[pin] = this.view.addWire(
+                {
+                    x: wireSelStartX + (pin * wireSelShiftX),
+                    y: wireSelStartY + sLenList[pin].v,
+                },
+                sLenList[pin].vh,
+                "horz",
             );
 
             if (!this.hideConnAndSwitch)
@@ -413,31 +476,13 @@ export class Selector2to1Circuit extends LevelledCircuit {
                     x: wireSelStartX + (pin * wireSelShiftX),
                     y: wireSelStartY + 66,
                 },
-                -165,
-                "horz",
-            );
-
-            this.inpSelectWirehv[pin] = this.view.addWire(
-                {
-                    x: wireSelStartX + (pin * wireSelShiftX) - 165,
-                    y: wireSelStartY + 66,
-                },
-                240,
-                "vert",
-            );
-
-            this.inpSelectWirehvh[pin] = this.view.addWire(
-                {
-                    x: wireSelStartX + (pin * wireSelShiftX) - 165,
-                    y: wireSelStartY + 66 + 240,
-                },
-                61,
+                sLenList[pin].nh,
                 "horz",
             );
 
             this.inpSelectWirehvn1[pin] = this.view.addWire(
                 {
-                    x: wireSelStartX + (pin * wireSelShiftX) - 130,
+                    x: wireSelStartX + (pin * wireSelShiftX) + sLenList[pin].nh,
                     y: wireSelStartY + 66,
                 },
                 30,
@@ -446,14 +491,14 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
             this.inpSelectConnNot[pin] = this.view.addConnector(
                 {
-                    x: wireSelStartX + (pin * wireSelShiftX) - 130,
+                    x: wireSelStartX + (pin * wireSelShiftX),
                     y: wireSelStartY + 66,
                 },
             );
 
             this.view.addNotGate(
                 {
-                    x: wireSelStartX + (pin * wireSelShiftX) - 130,
+                    x: wireSelStartX + (pin * wireSelShiftX) + sLenList[pin].nh,
                     y: wireSelStartY + 66 + 30 + 15,
                 },
                 {
@@ -466,19 +511,35 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
             this.inpSelectWirehvn2[pin] = this.view.addWire(
                 {
-                    x: wireSelStartX + (pin * wireSelShiftX) - 130,
+                    x: wireSelStartX + (pin * wireSelShiftX) + sLenList[pin].nh,
                     y: wireSelStartY + 66 + 30 + 15 + 38,
                 },
-                55,
+                sLenList[pin].nhv,
                 "vert",
+            );
+
+            this.inpSelectJoinConnNot[pin] = this.view.addConnector(
+                {
+                    x: wireSelStartX + (pin * wireSelShiftX) + sLenList[pin].nh,
+                    y: wireSelStartY + 66 + 30 + 15 + 38 + joinPosAndLen[pin].nry,
+                }
+            );
+
+            this.inpSelectJoinWireNot[pin] = this.view.addWire(
+                {
+                    x: wireSelStartX + (pin * wireSelShiftX) + sLenList[pin].nh,
+                    y: wireSelStartY + 66 + 30 + 15 + 38 + joinPosAndLen[pin].nry,
+                },
+                joinPosAndLen[pin].nh,
+                "horz",
             );
 
             this.inpSelectWirehvnh2[pin] = this.view.addWire(
                 {
-                    x: wireSelStartX + (pin * wireSelShiftX) - 130,
-                    y: wireSelStartY + 66 + 30 + 15 + 38 + 55,
+                    x: wireSelStartX + (pin * wireSelShiftX) + sLenList[pin].nh,
+                    y: wireSelStartY + 66 + 30 + 15 + 38 + sLenList[pin].nhv,
                 },
-                26,
+                sLenList[pin].nhvh,
                 "horz",
             );
 
@@ -503,20 +564,20 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
         this.view.addOrGate(
             {
-                x: 700,
-                y: 300,
+                x: 800,
+                y: 400,
             },
             {
                 width: 80,
-                height: 80,
+                height: 160,
             }
         );
 
         if (!this.hideConnAndSwitch)
         this.view.addText(
             {
-                x: 675 + 200,
-                y: 300,
+                x: 875 + 100,
+                y: 400,
             },
             "Q",
             {
@@ -526,8 +587,8 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
         this.outWire = this.view.addWire(
             {
-                x: 740,
-                y: 300,
+                x: 840,
+                y: 400,
             },
             106 - 35,
             "horz",
@@ -536,15 +597,15 @@ export class Selector2to1Circuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             this.outConnector = this.view.addConnector(
                 {
-                    x: 703 + 106,
-                    y: 300,
+                    x: 803 + 106,
+                    y: 400,
                 }
             );
 
             this.outBitLabel = this.view.addText(
                 {
-                    x: 703 + 106 + 20,
-                    y: 300 - 20,
+                    x: 803 + 106 + 20,
+                    y: 400 - 20,
                 },
                 "",
                 {
@@ -581,7 +642,7 @@ export class Selector2to1Circuit extends LevelledCircuit {
             }
         }
 
-        const outputBit = mux2To1(this.inpDataBit[0], this.inpDataBit[1], this.inpSelectBit[0]);
+        const outputBit = mux4To1(this.inpDataBit as Bit4, this.inpSelectBit as Bit2);
         this.finalOut = outputBit;
 
         this.setSignal(
@@ -597,6 +658,13 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
     private update1() {
         const andOutList: Bit[] = [];
+        const andInp = [
+            // 1 -> invert, 0 -> dont invert
+            [1, 1],
+            [1, 0],
+            [0, 1],
+            [0, 0],
+        ]
         for (let pin = 0; pin < this.totalDataInput; pin++) {
             const d = this.inpDataBit[pin];
 
@@ -605,9 +673,9 @@ export class Selector2to1Circuit extends LevelledCircuit {
                 this.inpDataWire[pin],
             );
 
-            const s = pin === 0 ? inverter(this.inpSelectBit[0]) : this.inpSelectBit[0];
+            const s = this.inpSelectBit.map((selBit, indx) => andInp[pin][indx] === 1 ? inverter(selBit) : selBit);
 
-            const andOut = andGate(d, s);
+            const andOut = andGateNInp([d, ...s]);
             andOutList.push(andOut);
 
             this.setSignal(
@@ -632,8 +700,13 @@ export class Selector2to1Circuit extends LevelledCircuit {
                 this.inpSelectConnNot[pin],
                 this.inpSelectWirehvn1[pin],
                 this.inpSelectWireh[pin],
-                this.inpSelectWirehv[pin],
-                this.inpSelectWirehvh[pin]
+                this.inpSelectWirevh[pin],
+            );
+
+            this.setSignal(
+                s,
+                this.inpSelectJoinWire[pin],
+                this.inpSelectJoinConn[pin],
             );
 
             const sNot = inverter(s);
@@ -643,6 +716,12 @@ export class Selector2to1Circuit extends LevelledCircuit {
                 this.inpSelectWirehvn2[pin],
                 undefined,
                 this.inpSelectWirehvnh2[pin],
+            );
+
+            this.setSignal(
+                sNot,
+                this.inpSelectJoinWireNot[pin],
+                this.inpSelectJoinConnNot[pin],
             );
 
             if (!this.hideConnAndSwitch) {

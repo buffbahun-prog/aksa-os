@@ -1,6 +1,6 @@
 import type { Bit, Bit2, Bit3, Bit32, Bit4, Bit8 } from "../types";
 import { fullAdder } from "./adders";
-import { andGate, andGateNInp, inverter, norGateNInp, orGate, xorGate } from "./gates";
+import { andGate, andGateNInp, inverter, nandGateNInp, norGateNInp, orGate, xorGate } from "./gates";
 import { mux2To1, mux4To1 } from "./mux_demux";
 
 // control signals
@@ -69,6 +69,12 @@ export function ALU(inp1: Bit32, inp2: Bit32, controlBits: Bit3): [result: Bit32
    const negateB = mappedAluCode[1];
    const carryIn = negateB;
 
+   const isNotPassBOp = nandGateNInp([
+    inverter(controlBits[0]),
+    controlBits[1],
+    controlBits[2],
+   ]);
+
    let msbCarryOut = carryIn;
    let msbCarryIn = carryIn;
 
@@ -76,7 +82,7 @@ export function ALU(inp1: Bit32, inp2: Bit32, controlBits: Bit3): [result: Bit32
 
    for (let i = 31; i >= 0; i--) {
     const a = inp1[i];
-    const b = inp2[i];
+    const b = andGate(inp2[i], isNotPassBOp);
 
     const [result, carryOut] = aluBit1(msbCarryOut, a, b, mappedAluCode);
     msbCarryIn = msbCarryOut;
@@ -107,22 +113,10 @@ export function ALU(inp1: Bit32, inp2: Bit32, controlBits: Bit3): [result: Bit32
    const aluResultExceptLsb = aluResult.slice(0, 31);
    const aluResultLsb = aluResult[31];
 
-   const afterSltResult = [
+   const finalResult = [
     ...aluResultExceptLsb.map(bit => andGate(issltOp, bit)),
     mux2To1(aluResultLsb, isLess, issltOp),
    ] as Bit32;
-
-   const isPassBOp = andGateNInp([
-    inverter(controlBits[0]),
-    controlBits[1],
-    controlBits[2],
-   ]);
-
-   const finalResult = afterSltResult.map((bit, indx) => mux2To1(
-    bit,
-    inp2[indx],
-    isPassBOp,
-   )) as Bit32;
 
    return [finalResult, carryOut, overflow, norGateNInp(finalResult)];
 }
