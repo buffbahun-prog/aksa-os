@@ -1,12 +1,12 @@
 import type { Bit32 } from "../types";
 import { decimalToBinary } from "../utils/convertion";
 import { bitAdder32 } from "./adders";
-import { register32 } from "./memory";
+import { Register32 } from "./memory";
 
-export class ProgramCounter extends register32 {
+export class ProgramCounter extends Register32 {
 
     constructor() {
-        super();
+        super(true);
     }
 
     increment() {
