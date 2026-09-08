@@ -3,6 +3,7 @@ import type { Bit, Bit32, Bit8 } from "../types";
 import { binaryToDecimal, decimalToBinary } from "../utils/convertion";
 
 export class Register32 {
+    
     private q: Bit32;
     private writable: boolean;
 
