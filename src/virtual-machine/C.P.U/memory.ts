@@ -1,7 +1,6 @@
 import { HardwareExceptionType, HardwareExpection } from "../exceptions";
-import type { Bit, Bit32, Bit4, Bit8 } from "../types";
+import type { Bit, Bit32, Bit8 } from "../types";
 import { binaryToDecimal, decimalToBinary } from "../utils/convertion";
-import { mux8To1 } from "./mux_demux";
 
 export class Register32 {
     private q: Bit32;
@@ -51,19 +50,19 @@ export class Register8 {
     }
 }
 
-export class RegisterFile16x8 {
-    private register: Register8[];
+// export class RegisterFile16x8 {
+//     private register: Register8[];
 
-    constructor() {
-        this.register = Array.from({length: 16}).map((_, regNum) => {
-            return new Register8(regNum <= 0 ? false : true);
-        });
-    }
+//     constructor() {
+//         this.register = Array.from({length: 16}).map((_, regNum) => {
+//             return new Register8(regNum <= 0 ? false : true);
+//         });
+//     }
 
-    // registerFile(reg1ReadNum: Bit4, reg2ReadNum: Bit4, regWriteNum: Bit4, writeData: Bit8, writeControl: Bit): [readData1: Bit8, readData2: Bit8] {
+//     // registerFile(reg1ReadNum: Bit4, reg2ReadNum: Bit4, regWriteNum: Bit4, writeData: Bit8, writeControl: Bit): [readData1: Bit8, readData2: Bit8] {
         
-    // }
-}
+//     // }
+// }
 
 export class RAM {
     private data: SharedArrayBuffer;

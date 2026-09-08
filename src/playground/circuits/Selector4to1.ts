@@ -776,7 +776,7 @@ export class Selector4to1Circuit extends LevelledCircuit {
         }
     }
 
-    setInputs(inpData: [d0: Bit, d1: Bit], inpSelect: [s0: Bit]): Bit {
+    setInputs(inpData: [d0: Bit, d1: Bit, d2: Bit, d3: Bit], inpSelect: [s0: Bit, s1: Bit]): Bit {
         this.inpDataBit = inpData;
         this.inpSelectBit = inpSelect;
         this.update();
