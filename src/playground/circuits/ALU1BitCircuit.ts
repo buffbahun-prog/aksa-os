@@ -1,6 +1,6 @@
 import { aluBit1 } from "../../virtual-machine/C.P.U/ALU";
 import { andGate, orGate, xorGate } from "../../virtual-machine/C.P.U/gates";
-import type { Bit } from "../../virtual-machine/types";
+import type { Bit, Bit4 } from "../../virtual-machine/types";
 import type { ConnectorResult, TextResult, WireResult } from "../core/CircuitSvg";
 import { LevelledCircuit } from "../core/LevelledCircuit";
 import { FullAdderCircuit } from "./FullAdder";
@@ -132,14 +132,16 @@ export class ALU1BitCircuit extends LevelledCircuit {
 
     private hideConnAndSwitch: boolean;
 
+    private finalResult: [result: Bit, carryOut: Bit] = [0, 0];
+
     constructor(hide = false) {
         super(1);
+
+        this.hideConnAndSwitch = hide;
 
         this.build();
 
         this.update();
-
-        this.hideConnAndSwitch = hide;
     }
 
     getMaxLevel() {
@@ -457,7 +459,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
             y: 460,
         },
         "1 Bit ALU",
-        { fontSize: 40 },
+        { fontSize: 50 },
        );
 
         if (!this.hideConnAndSwitch) {
@@ -1322,6 +1324,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
         );
 
         const [result, carryOut] = aluBit1(carryIn, a, b, [aInvert, bInvert, op0, op1])
+        this.finalResult = [result, carryOut];
 
         this.setSignal(
             result,
@@ -1493,6 +1496,8 @@ export class ALU1BitCircuit extends LevelledCircuit {
             this.muxOutConn,
         );
 
+        this.finalResult = [muxOut, carryOut];
+
         if (!this.hideConnAndSwitch) {
             this.view.setTextBitAnimated(this.inpWire1Label.textId, a);
             this.view.setTextBitAnimated(this.inpWire2Label.textId, b);
@@ -1537,5 +1542,19 @@ export class ALU1BitCircuit extends LevelledCircuit {
                 bit,
             );
         }
+    }
+
+    setInputs(carryIn: Bit, inp1: Bit, inp2: Bit, controlBits: Bit4): [result: Bit, carryOut: Bit] {
+        this.inpBit1 = inp1;
+        this.inpBit2 = inp2;
+
+        this.carryInBit = carryIn;
+
+        this.aInvertBit = controlBits[0];
+        this.bInvertBit = controlBits[1];
+        this.opBit0 = controlBits[2];
+        this.opBit1 = controlBits[3];
+        this.update();
+        return this.finalResult;
     }
 }

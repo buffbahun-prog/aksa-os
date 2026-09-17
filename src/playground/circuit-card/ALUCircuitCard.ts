@@ -1,4 +1,4 @@
-import { ALUCircuit } from "../circuits/ALUCircuit";
+import { ALU8BitsCircuit } from "../circuits/ALUCircuit";
 
 import {
     CircuitCard,
@@ -6,14 +6,14 @@ import {
 } from "../core/CircuitCard";
 
 
-export class ALUCircuitCard
-    extends CircuitCard<ALUCircuit> {
+export class ALU8BitsCircuitCard
+    extends CircuitCard<ALU8BitsCircuit> {
 
 
     constructor() {
 
         const circuit =
-            new ALUCircuit();
+            new ALU8BitsCircuit();
 
 
         const config:
@@ -23,40 +23,31 @@ export class ALUCircuitCard
 
                 {
                     position: {
-                        x: 0,
-                        y: 0,
+                        x: -800,
+                        y: -400,
                     },
 
-                    zoom: 1,
+                    zoom: .35,
                 },
 
 
                 {
                     position: {
-                        x: -500,
-                        y: -45,
+                        x: -800,
+                        y: -400,
                     },
 
-                    zoom: 0.55,
+                    zoom: .35,
                 },
 
 
                 {
                     position: {
-                        x: -550,
-                        y: -45,
+                        x: -800,
+                        y: -400,
                     },
 
-                    zoom: 0.55,
-                },
-
-                {
-                    position: {
-                        x: -550,
-                        y: -45,
-                    },
-
-                    zoom: 0.55,
+                    zoom: .35,
                 },
 
             ],
@@ -67,6 +58,8 @@ export class ALUCircuitCard
         super(
             circuit,
             config,
+            1200,
+            1200,
         );
     }
 }

@@ -1,4 +1,4 @@
-import type { Bit, Bit3, Bit32, Bit6 } from "../types";
+import type { Bit, Bit3, Bit32, Bit6, Bit8 } from "../types";
 import { bitAdder6 } from "./adders";
 import { andGate, andGateNInp, inverter, norGateNInp, orGate, orGateNInp } from "./gates";
 import { mux2To1 } from "./mux_demux";
@@ -398,4 +398,133 @@ function normalizedShiftAmt(
     return moduloResult.map(
         bit => orGate(isShiftBy32, bit)
     ) as Bit6;
+}
+
+// Control Bits
+// [logical / arthmematic shift, shift/rotate, left/right]
+// [0, 0, 0] -> left shift
+// [0, 0, 1] -> right shift
+// [0, 1, 0] -> left rotate
+// [0, 1, 1] -> right rotate
+// [1, 0, 0] -> invalid
+// [1, 0, 1] -> arthematic right shift
+// [1, 1, 0] -> invalid
+// [1, 1, 1] -> invalid
+export function shiftRotate8(
+    data: Bit8,
+    shiftBy: Bit3,
+    controlBits: Bit3,
+): Bit8 {
+    const [msb, rotate, rightDir] = controlBits;
+
+    const isArthematicRightShift = andGateNInp([msb, inverter(rotate), rightDir]);
+    const isinvalidOp = andGate(msb, inverter(isArthematicRightShift));
+
+    const signBit = data[0];
+
+    const directionNormalizedData = data
+        .map((bit, index) =>
+            mux2To1(
+                bit,
+                data[data.length - (index + 1)],
+                rightDir,
+            )
+        );
+
+    const barrelStage = (
+        shiftAmount: number,
+        index: number,
+        inputData: Bit32,
+        stageEnabled: Bit,
+    ): Bit => {
+
+        const fillStartIndex = inputData.length - shiftAmount;
+        const isFillPosition = index >= fillStartIndex;
+
+        // --------------------------------------------------------
+        // Shift
+        // --------------------------------------------------------
+
+        const shiftFillBit = andGate(
+            isArthematicRightShift,
+            signBit,
+        );
+
+        const shiftedBit = isFillPosition
+            ? shiftFillBit
+            : inputData[index + shiftAmount];
+
+        // --------------------------------------------------------
+        // Rotate
+        // --------------------------------------------------------
+
+        const rotatedBit = isFillPosition
+            ?
+              inputData[index - fillStartIndex]
+            : inputData[index + shiftAmount];
+
+        // --------------------------------------------------------
+        // Select shift or rotate
+        // --------------------------------------------------------
+
+        const transformedBit = mux2To1(
+            shiftedBit,
+            rotatedBit,
+            rotate,
+        );
+
+        // --------------------------------------------------------
+        // Enable / bypass this barrel stage
+        // --------------------------------------------------------
+
+        return mux2To1(
+            inputData[index],
+            transformedBit,
+            stageEnabled,
+        );
+    };
+
+    // 4-place shifter / rotator
+    const shift4Data = directionNormalizedData.map(
+        (_, index, inputData) =>
+            barrelStage(
+                4,
+                index,
+                inputData as Bit32,
+                andGate(shiftBy[0], inverter(isinvalidOp)),
+            )
+    );
+
+    // 2-place shifter / rotator
+    const shift2Data = shift4Data.map(
+        (_, index, inputData) =>
+            barrelStage(
+                2,
+                index,
+                inputData as Bit32,
+                andGate(shiftBy[1], inverter(isinvalidOp)),
+            )
+    );
+
+    // 1-place shifter / rotator
+    const finalShiftData = shift2Data.map(
+        (_, index, inputData) =>
+            barrelStage(
+                1,
+                index,
+                inputData as Bit32,
+                andGate(shiftBy[2], inverter(isinvalidOp)),
+            )
+    );
+    
+    const directionRestoredData = finalShiftData
+        .map((bit, index, transformedData) =>
+            mux2To1(
+                bit,
+                transformedData[transformedData.length - (index + 1)],
+                rightDir,
+            )
+        ) as Bit8;
+
+    return directionRestoredData;
 }

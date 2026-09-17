@@ -33,6 +33,10 @@ export interface SwitchResult {
     switchId: string;
 }
 
+export interface ConstantResult {
+    constantId: string;
+}
+
 type GateType =
     | "and"
     | "or"
@@ -373,6 +377,229 @@ export class CircuitSvg {
         );
     }
 
+    // ========================================================
+    // CONSTANT
+    // ========================================================
+
+    createConstantId(): string {
+        return `constant-${counters.constantCounter++}`;
+    }
+
+addConstant(
+    position: Position,
+    bit: Bit,
+    radius = 24,
+): ConstantResult {
+
+    const constantId =
+        this.createConstantId();
+
+    const group =
+        this.createSvgElement("g");
+
+    group.id = constantId;
+
+    group.dataset.type = "constant";
+    group.dataset.bit = String(bit);
+
+    group.setAttribute(
+        "transform",
+        `translate(${position.x}, ${position.y})`,
+    );
+
+    // ---------------------------------------------------------
+    // Shadow
+    // ---------------------------------------------------------
+
+    const shadow =
+        this.createSvgElement("circle");
+
+    shadow.setAttribute("cx", "0");
+    shadow.setAttribute("cy", "4");
+    shadow.setAttribute("r", String(radius));
+
+    shadow.setAttribute(
+        "fill",
+        "rgba(0, 0, 0, 0.35)",
+    );
+
+    shadow.dataset.role =
+        "constant-shadow";
+
+    group.appendChild(shadow);
+
+    // ---------------------------------------------------------
+    // Body
+    // ---------------------------------------------------------
+
+    const body =
+        this.createSvgElement("circle");
+
+    body.setAttribute("cx", "0");
+    body.setAttribute("cy", "0");
+    body.setAttribute("r", String(radius));
+
+    body.setAttribute(
+        "fill",
+        bit === 1
+            ? this.COLORS.bit1
+            : this.COLORS.switchFill,
+    );
+
+    body.setAttribute(
+        "stroke",
+        bit === 1
+            ? this.COLORS.bit1
+            : this.COLORS.switchStroke,
+    );
+
+    body.setAttribute(
+        "stroke-width",
+        "3",
+    );
+
+    body.dataset.role =
+        "constant-body";
+
+    group.appendChild(body);
+
+    // ---------------------------------------------------------
+    // Inner recessed area
+    // ---------------------------------------------------------
+
+    const inner =
+        this.createSvgElement("circle");
+
+    inner.setAttribute("cx", "0");
+    inner.setAttribute("cy", "0");
+
+    inner.setAttribute(
+        "r",
+        String(radius * 0.68),
+    );
+
+    inner.setAttribute(
+        "fill",
+        "transparent",
+    );
+
+    inner.setAttribute(
+        "stroke",
+        bit === 1
+            ? this.COLORS.bit1
+            : this.COLORS.switchStroke,
+    );
+
+    inner.setAttribute(
+        "stroke-width",
+        "2",
+    );
+
+    inner.setAttribute(
+        "opacity",
+        "0.65",
+    );
+
+    inner.dataset.role =
+        "constant-inner";
+
+    group.appendChild(inner);
+
+    // ---------------------------------------------------------
+    // Value
+    // ---------------------------------------------------------
+
+    const value =
+        this.createSvgElement("text");
+
+    value.setAttribute("x", "-12");
+
+    value.setAttribute(
+        "y",
+        String(radius * -1.5),
+    );
+
+    value.setAttribute(
+        "text-anchor",
+        "middle",
+    );
+
+    value.setAttribute(
+        "font-size",
+        String(radius * 2),
+    );
+
+    value.setAttribute(
+        "font-weight",
+        "700",
+    );
+
+    value.setAttribute(
+        "fill",
+        "currentColor",
+    );
+
+    value.setAttribute(
+        "stroke",
+        "none",
+    );
+
+    value.textContent =
+        String(bit);
+
+    value.dataset.role =
+        "constant-value";
+
+    group.appendChild(value);
+
+    // ---------------------------------------------------------
+    // Top highlight
+    // ---------------------------------------------------------
+
+    const highlight =
+        this.createSvgElement("ellipse");
+
+    highlight.setAttribute(
+        "cx",
+        String(-radius * 0.25),
+    );
+
+    highlight.setAttribute(
+        "cy",
+        String(-radius * 0.30),
+    );
+
+    highlight.setAttribute(
+        "rx",
+        String(radius * 0.25),
+    );
+
+    highlight.setAttribute(
+        "ry",
+        String(radius * 0.10),
+    );
+
+    highlight.setAttribute(
+        "fill",
+        "rgba(255, 255, 255, 0.12)",
+    );
+
+    highlight.dataset.role =
+        "constant-highlight";
+
+    group.appendChild(highlight);
+
+    // ---------------------------------------------------------
+    // Add to SVG
+    // ---------------------------------------------------------
+
+    this.group.appendChild(group);
+
+    return {
+        constantId,
+    };
+}
+
     // =========================================================
     // GATES
     // =========================================================
@@ -381,6 +608,7 @@ export class CircuitSvg {
         position: Position,
         size: Size,
         display = true,
+        orientation?: GateOrientation,
     ): GateResult {
 
         return this.addGate(
@@ -388,6 +616,7 @@ export class CircuitSvg {
             position,
             size,
             display,
+            orientation,
         );
     }
 
@@ -395,6 +624,7 @@ export class CircuitSvg {
         position: Position,
         size: Size,
         display = true,
+        orientation?: GateOrientation,
     ): GateResult {
 
         return this.addGate(
@@ -402,6 +632,7 @@ export class CircuitSvg {
             position,
             size,
             display,
+            orientation,
         );
     }
 
@@ -423,6 +654,7 @@ export class CircuitSvg {
         position: Position,
         size: Size,
         display = true,
+        orientation?: GateOrientation,
     ): GateResult {
 
         return this.addGate(
@@ -430,6 +662,7 @@ export class CircuitSvg {
             position,
             size,
             display,
+            orientation,
         );
     }
 
@@ -437,6 +670,7 @@ export class CircuitSvg {
         position: Position,
         size: Size,
         display = true,
+        orientation?: GateOrientation,
     ): GateResult {
 
         return this.addGate(
@@ -444,6 +678,7 @@ export class CircuitSvg {
             position,
             size,
             display,
+            orientation,
         );
     }
 

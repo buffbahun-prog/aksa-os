@@ -4,4 +4,5 @@ export const counters = {
     wire: 0,
     connector: 0,
     switch: 0,
+    constantCounter: 0,
 };

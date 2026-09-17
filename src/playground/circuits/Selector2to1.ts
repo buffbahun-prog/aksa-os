@@ -503,7 +503,7 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
         this.view.addOrGate(
             {
-                x: 700,
+                x: 660,
                 y: 300,
             },
             {
@@ -515,7 +515,7 @@ export class Selector2to1Circuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch)
         this.view.addText(
             {
-                x: 675 + 200,
+                x: 675 + 200 - 35,
                 y: 300,
             },
             "Q",
@@ -526,7 +526,7 @@ export class Selector2to1Circuit extends LevelledCircuit {
 
         this.outWire = this.view.addWire(
             {
-                x: 740,
+                x: 703,
                 y: 300,
             },
             106 - 35,
@@ -536,14 +536,14 @@ export class Selector2to1Circuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             this.outConnector = this.view.addConnector(
                 {
-                    x: 703 + 106,
+                    x: 703 + 106 - 35,
                     y: 300,
                 }
             );
 
             this.outBitLabel = this.view.addText(
                 {
-                    x: 703 + 106 + 20,
+                    x: 703 + 106 + 20 - 35,
                     y: 300 - 20,
                 },
                 "",

@@ -1,10 +1,10 @@
 import { ALU1BitCircuitCard } from "../../../playground/circuit-card/ALU1BitCircuitCard";
-// import { ALUCircuitCard } from "../../../playground/circuit-card/ALUCircuitCard";
+import { ALU8BitsCircuitCard } from "../../../playground/circuit-card/ALUCircuitCard";
 import { Page, type PageContext } from "../../../router/Page";
 
 export class ALUPage extends Page {
 
-    // private readonly aluCard: ALUCircuitCard;
+    private readonly alu8BitsCard: ALU8BitsCircuitCard;
     private readonly alu1BitCard: ALU1BitCircuitCard;
 
 
@@ -46,7 +46,7 @@ export class ALUPage extends Page {
         );
 
 
-        // this.aluCard = new ALUCircuitCard();
+        this.alu8BitsCard = new ALU8BitsCircuitCard();
         this.alu1BitCard = new ALU1BitCircuitCard();
     }
 
@@ -74,9 +74,9 @@ export class ALUPage extends Page {
             case "alu-1-bit":
                 card = this.alu1BitCard.getTemplateClone();
                 break;
-            // case "alu":
-            //     card = this.aluCard.getTemplateClone();
-            //     break;
+            case "alu-8-bit":
+                card = this.alu8BitsCard.getTemplateClone();
+                break;
         }
 
         if (showCircuit) {
@@ -96,7 +96,7 @@ export class ALUPage extends Page {
             }
             const gatesList = [
                 {tmpl: this.alu1BitCard.getTemplateClone(), h2: "1-Bit-A.L.U."},
-                // {tmpl: this.aluCard.getTemplateClone(), h2: "A.L.U."},
+                {tmpl: this.alu8BitsCard.getTemplateClone(), h2: "A.L.U. 8 Bits"},
             ];
             gatesList.forEach(gl => {
                 if (!gl.tmpl) return;
