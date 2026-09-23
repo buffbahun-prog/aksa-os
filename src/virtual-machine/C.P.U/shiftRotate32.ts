@@ -1,6 +1,6 @@
 import type { Bit, Bit3, Bit32, Bit6, Bit8 } from "../types";
 import { bitAdder6 } from "./adders";
-import { andGate, andGateNInp, inverter, norGateNInp, orGate, orGateNInp } from "./gates";
+import { andGate, andGateNInp, inverter, nandGate, norGateNInp, orGate, orGateNInp } from "./gates";
 import { mux2To1 } from "./mux_demux";
 
 
@@ -418,9 +418,14 @@ export function shiftRotate8(
     const [msb, rotate, rightDir] = controlBits;
 
     const isArthematicRightShift = andGateNInp([msb, inverter(rotate), rightDir]);
-    const isinvalidOp = andGate(msb, inverter(isArthematicRightShift));
+    const isvalidOp = nandGate(msb, inverter(isArthematicRightShift));
 
     const signBit = data[0];
+
+    const shiftFillBit = andGate(
+            isArthematicRightShift,
+            signBit,
+        );
 
     const directionNormalizedData = data
         .map((bit, index) =>
@@ -434,7 +439,7 @@ export function shiftRotate8(
     const barrelStage = (
         shiftAmount: number,
         index: number,
-        inputData: Bit32,
+        inputData: Bit8,
         stageEnabled: Bit,
     ): Bit => {
 
@@ -444,11 +449,6 @@ export function shiftRotate8(
         // --------------------------------------------------------
         // Shift
         // --------------------------------------------------------
-
-        const shiftFillBit = andGate(
-            isArthematicRightShift,
-            signBit,
-        );
 
         const shiftedBit = isFillPosition
             ? shiftFillBit
@@ -490,8 +490,8 @@ export function shiftRotate8(
             barrelStage(
                 4,
                 index,
-                inputData as Bit32,
-                andGate(shiftBy[0], inverter(isinvalidOp)),
+                inputData as Bit8,
+                andGate(shiftBy[0], isvalidOp),
             )
     );
 
@@ -501,8 +501,8 @@ export function shiftRotate8(
             barrelStage(
                 2,
                 index,
-                inputData as Bit32,
-                andGate(shiftBy[1], inverter(isinvalidOp)),
+                inputData as Bit8,
+                andGate(shiftBy[1], isvalidOp),
             )
     );
 
@@ -512,8 +512,8 @@ export function shiftRotate8(
             barrelStage(
                 1,
                 index,
-                inputData as Bit32,
-                andGate(shiftBy[2], inverter(isinvalidOp)),
+                inputData as Bit8,
+                andGate(shiftBy[2], isvalidOp),
             )
     );
     

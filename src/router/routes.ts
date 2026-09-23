@@ -3,6 +3,7 @@ import { ALUPage } from "../pages/playground/ALU/ALUPage";
 import { ArithmeticPage } from "../pages/playground/arithmetic/ArithmeticPage";
 import { GatesPage } from "../pages/playground/gates/GatesPage";
 import { SelectorsPage } from "../pages/playground/selectors/SelectorsPage";
+import { ShifterPage } from "../pages/playground/shifter/ShifterPage";
 import type { Route } from "./Route";
 
 export const routes: Route[] = [
@@ -27,5 +28,9 @@ export const routes: Route[] = [
     {
         path: "/playground/alu",
         page: ALUPage,
+    },
+    {
+        path: "/playground/shifters",
+        page: ShifterPage,
     },
 ];

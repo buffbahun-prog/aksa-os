@@ -91,6 +91,8 @@ export class ALU8BitsCircuit extends LevelledCircuit {
     overflowBitLabel!: TextResult;
     zeroBitLabel!: TextResult;
 
+    private finalOut: [result: Bit8, carryOut: Bit, overflow: Bit, zeroFlag: Bit] = [Array.from({length: 8}).fill(0) as Bit8, 0, 0, 1];
+
     private hideConnAndSwitch: boolean;
 
     constructor(hide = false) {
@@ -2186,7 +2188,7 @@ export class ALU8BitsCircuit extends LevelledCircuit {
         if (this.outputBinLabel) this.view.setText(this.outputBinLabel.textId, `R Binary: ${finalResult.join("")}`);
         if (this.outputDecLabel) this.view.setText(this.outputDecLabel.textId, `R Decimal: ${binaryToDecimal(finalResult)}`);
         
-        // return [finalResult, carryOut, overflow, norGateNInp(finalResult)];
+        this.finalOut = [finalResult, carryOut, overflow, zero];
     }
 
     private update1() {
@@ -2322,7 +2324,7 @@ export class ALU8BitsCircuit extends LevelledCircuit {
         if (this.outputBinLabel) this.view.setText(this.outputBinLabel.textId, `R Binary: ${finalResult.join("")}`);
         if (this.outputDecLabel) this.view.setText(this.outputDecLabel.textId, `R Decimal: ${binaryToDecimal(finalResult)}`);
         
-        // return [finalResult, carryOut, overflow, norGateNInp(finalResult)];
+        this.finalOut = [finalResult, carryOut, overflow, zeroFlag];
     }
 
     // =========================================================
@@ -2356,5 +2358,13 @@ export class ALU8BitsCircuit extends LevelledCircuit {
                 bit,
             );
         }
+    }
+
+    setInputs(inpData1: Bit8, inpData2: Bit8, controlBits: Bit3): [result: Bit8, carryOut: Bit, overflow: Bit, zeroFlag: Bit] {
+        this.inputDataBits1 = inpData1;
+        this.inputDataBits2 = inpData2;
+        this.controlBits = controlBits;
+        this.update();
+        return this.finalOut;
     }
 }

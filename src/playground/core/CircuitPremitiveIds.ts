@@ -5,4 +5,5 @@ export const counters = {
     connector: 0,
     switch: 0,
     constantCounter: 0,
+    text: 0,
 };

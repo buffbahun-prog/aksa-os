@@ -1,13 +1,9 @@
-import { Selector2to1CircuitCard } from "../../../playground/circuit-card/Selector2to1CircuitCard";
-import { Selector4to1CircuitCard } from "../../../playground/circuit-card/Selector4to1CircuitCard";
-import { Selector8Bit2to1CircuitCard } from "../../../playground/circuit-card/Selector8Bit2to1CircuitCard";
+import { ShifterRotator8BitsCircuitCard } from "../../../playground/circuit-card/ShifterRotator8BitsCircuitCard";
 import { Page, type PageContext } from "../../../router/Page";
 
-export class SelectorsPage extends Page {
+export class ShifterPage extends Page {
 
-    private readonly selector2to1Card: Selector2to1CircuitCard;
-    private readonly selector4to1Card: Selector4to1CircuitCard;
-    private readonly selector8Bit2to1Card: Selector8Bit2to1CircuitCard;
+    private readonly shifter8BitsCard: ShifterRotator8BitsCircuitCard;
 
 
     constructor(
@@ -48,9 +44,7 @@ export class SelectorsPage extends Page {
         );
 
 
-        this.selector2to1Card = new Selector2to1CircuitCard();
-        this.selector4to1Card = new Selector4to1CircuitCard();
-        this.selector8Bit2to1Card = new Selector8Bit2to1CircuitCard();
+        this.shifter8BitsCard = new ShifterRotator8BitsCircuitCard();
     }
 
 
@@ -74,14 +68,8 @@ export class SelectorsPage extends Page {
 
         switch (showCircuit) {
             // for embeded in ifram content
-            case "selector2to1":
-                card = this.selector2to1Card.getTemplateClone();
-                break;
-            case "selector4to1":
-                card = this.selector4to1Card.getTemplateClone();
-                break;
-            case "selector8bit2to1":
-                card = this.selector4to1Card.getTemplateClone();
+            case "shifter8bit":
+                card = this.shifter8BitsCard.getTemplateClone();
                 break;
         }
 
@@ -101,9 +89,7 @@ export class SelectorsPage extends Page {
                 p.textContent = "Explore how selectors and decoders are constructed and configured with combinations of Logic Gates.";
             }
             const gatesList = [
-                {tmpl: this.selector2to1Card.getTemplateClone(), h2: "2 to 1 Selector"},
-                {tmpl: this.selector4to1Card.getTemplateClone(), h2: "4 to 1 Selector"},
-                {tmpl: this.selector8Bit2to1Card.getTemplateClone(), h2: "8 Bit 2 to 1 Selector"},
+                {tmpl: this.shifter8BitsCard.getTemplateClone(), h2: "8 Bits Shifter/Rotator"},
             ];
             gatesList.forEach(gl => {
                 if (!gl.tmpl) return;

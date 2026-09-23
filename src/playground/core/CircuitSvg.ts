@@ -106,8 +106,6 @@ export class CircuitSvg {
 
 };
 
-    private textCounter = 0;
-
     // ============================================
     // Circuit Transform
     // ============================================
@@ -1591,7 +1589,7 @@ addSwitch(
     // ========================================================
 
     private createTextId(): string {
-        return `text-${this.textCounter++}`;
+        return `text-${counters.text++}`;
     }
 
     addText(
