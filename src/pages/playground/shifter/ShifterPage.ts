@@ -85,8 +85,8 @@ export class ShifterPage extends Page {
             const h1 = this.query("h1");
             const p = this.query("p");
             if (h1 && p) {
-                h1.textContent = "Interactive Selectors and Decoders Circuits";
-                p.textContent = "Explore how selectors and decoders are constructed and configured with combinations of Logic Gates.";
+                h1.textContent = "Interactive Barrel Shifter Circuit";
+                p.textContent = "Explore the internal logic of a barrel shifter. Experiment with logical and arithmetic shifts, bit rotations, and different shift amounts while inspecting how the circuit transforms its input bits.";
             }
             const gatesList = [
                 {tmpl: this.shifter8BitsCard.getTemplateClone(), h2: "8 Bits Shifter/Rotator"},

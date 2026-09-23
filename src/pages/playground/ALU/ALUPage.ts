@@ -91,8 +91,8 @@ export class ALUPage extends Page {
             const h1 = this.query("h1");
             const p = this.query("p");
             if (h1 && p) {
-                h1.textContent = "Interactive Arithmetic Circuits";
-                p.textContent = "Explore how arithmetics are constructed and performed with combinations of Logic Gates.";
+                h1.textContent = "Interactive ALU Circuits";
+                p.textContent = "Explore how an Arithmetic Logic Unit (ALU) performs arithmetic and logical operations. Experiment with AND, OR, XOR, PASS B, addition, subtraction, signed comparison (SLT), and unsigned comparison (SLTU). Change the input values and operation code to observe how the ALU produces its results.";
             }
             const gatesList = [
                 {tmpl: this.alu1BitCard.getTemplateClone(), h2: "1-Bit-A.L.U."},
