@@ -81,7 +81,7 @@ export class SelectorsPage extends Page {
                 card = this.selector4to1Card.getTemplateClone();
                 break;
             case "selector8bit2to1":
-                card = this.selector4to1Card.getTemplateClone();
+                card = this.selector8Bit2to1Card.getTemplateClone();
                 break;
         }
 
