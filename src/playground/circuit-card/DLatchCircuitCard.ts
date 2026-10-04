@@ -1,4 +1,4 @@
-import { ALU1BitCircuit } from "../circuits/ALU1BitCircuit";
+import { DLatchCircuit } from "../circuits/DLatchCircuit";
 
 import {
     CircuitCard,
@@ -6,53 +6,33 @@ import {
 } from "../core/CircuitCard";
 
 
-export class ALU1BitCircuitCard
-    extends CircuitCard<ALU1BitCircuit> {
+export class DLatchCircuitCard
+    extends CircuitCard<DLatchCircuit> {
 
 
     constructor() {
 
         const circuit =
-            new ALU1BitCircuit();
+            new DLatchCircuit();
 
 
         const config:
             CircuitCardConfig = {
 
             levels: [
-
                 {
                     position: {
                         x: -150,
                         y: 0,
                     },
 
-                    zoom: .8,
-                },
-
-
-                {
-                    position: {
-                        x: 0,
-                        y: 50,
-                    },
-
                     zoom: 1,
                 },
 
                 {
                     position: {
-                        x: 0,
-                        y: 50,
-                    },
-
-                    zoom: 1,
-                },
-
-                {
-                    position: {
-                        x: 0,
-                        y: 50,
+                        x: -150,
+                        y: 0,
                     },
 
                     zoom: 1,

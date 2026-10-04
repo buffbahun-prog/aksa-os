@@ -135,7 +135,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
     private finalResult: [result: Bit, carryOut: Bit] = [0, 0];
 
     constructor(hide = false) {
-        super(1);
+        super(3);
 
         this.hideConnAndSwitch = hide;
 
@@ -159,6 +159,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.build1();
                 break;
         }
@@ -175,6 +176,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.update1();
                 break;
         }
@@ -575,6 +577,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
 
     private build1() {
         const level = this.level;
+        console.log(level);
 
         if (!this.hideConnAndSwitch) {
             this.inpWire1Label = this.view.addText(
@@ -872,7 +875,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
             x: 410,
             y: 665,
         },
-        80,
+        level === 1 ? 80 : 52,
         "horz",
        );
 
@@ -897,7 +900,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
             x: 360,
             y: 707,
         },
-        130,
+        level === 1 ? 130 : 91,
         "horz",
        );
 
@@ -906,16 +909,16 @@ export class ALU1BitCircuit extends LevelledCircuit {
             x: 435,
             y: 770,
         },
-        -145,
+        -147,
         "vert",
        );
 
        this.carryInWireh = this.view.addWire(
         {
             x: 435,
-            y: 770 - 145,
+            y: 770 - 147,
         },
-        55,
+        level === 1 ? 55 : 30,
         "horz",
        );
 
@@ -1074,7 +1077,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
        this.sumOutWire = this.view.addWire(
         {
             x: 607,
-            y: 635,
+            y: 629,
         },
         80,
         "horz",
@@ -1083,9 +1086,9 @@ export class ALU1BitCircuit extends LevelledCircuit {
        this.sumOutWirev = this.view.addWire(
         {
             x: 687,
-            y: 635,
+            y: 629,
         },
-        -120,
+        -120 + 6,
         "vert",
        );
 
@@ -1103,7 +1106,7 @@ export class ALU1BitCircuit extends LevelledCircuit {
             x: 660,
             y: 150,
         },
-        540,
+        540 - 4,
         "vert",
        );
 
@@ -1118,9 +1121,9 @@ export class ALU1BitCircuit extends LevelledCircuit {
        this.carryOutWireh = this.view.addWire(
         {
             x: 660,
-            y: 690,
+            y: 690 - 4,
         },
-        -53,
+        -53 + (level === 1 ? 0 : 2),
         "horz",
        );
 
@@ -1150,10 +1153,10 @@ export class ALU1BitCircuit extends LevelledCircuit {
 
        this.muxOutWire = this.view.addWire(
         {
-            x: level <= 1 ? 952 : 970,
+            x: 952,
             y: 390,
         },
-        level <= 1 ? 70 : 52,
+        70,
         "horz",
        );
 

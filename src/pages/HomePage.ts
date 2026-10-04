@@ -246,6 +246,32 @@ const sections: PlaygroundSection[] = [
         `,
     },
 
+   {
+    title: "Flip-Flops & Registers",
+    description:
+        "Experiment with flip-flops, registers and sequential storage circuits.",
+    route: "/playground/registers",
+    icon: `
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <rect
+                x="4"
+                y="4"
+                width="16"
+                height="16"
+                rx="4"
+            />
+            <path d="M8 8h8" />
+            <path d="M8 12h8" />
+            <path d="M8 16h8" />
+            <path d="M4 12H2" />
+            <path d="M20 12h2" />
+        </svg>
+    `,
+},
+
 ],
     },
 

@@ -24,6 +24,13 @@ export function mux32Bit2To1(inp0: Bit32, inp1: Bit32, select: Bit) {
     )) as Bit32;
 }
 
+export function mux32Bit32To1(inp: Bit32[], select: Bit5): Bit32 {
+    return inp.map((bits) => mux32To1(
+        bits,
+        select,
+    )) as Bit32;
+}
+
 export function mux32To1(data: Bit32, selectBits: Bit5): Bit {
     return orGateNInp([
         // for select value 00000, the first bit in the data should be selected
@@ -271,4 +278,80 @@ export function demux1to2(dataInp: Bit, select: Bit): [Bit, Bit] {
             select,
         )
     ]
+}
+
+export function decoder1to2(select: [Bit]): [Bit, Bit] {
+    return [
+        inverter(select[0]),
+        select[0],
+    ];
+}
+
+export function decoder2to4(select: Bit2): Bit4 {
+    const s0 = select[0];
+    const s0i = inverter(s0);
+    const s1 = select[1];
+    const s1i = inverter(s1);
+    return [
+        andGate(s0i, s1i),
+        andGate(s0i, s1),
+        andGate(s0, s1i),
+        andGate(s0, s1),
+    ];
+}
+
+export function decoder2to8(select: Bit3): Bit8 {
+    const [s0, s1, s2] = select;
+    const [s0i, s1i, s2i] = [inverter(s0), inverter(s1), inverter(s2)];
+
+    return [
+        andGateNInp([s0i, s1i, s2i]),
+        andGateNInp([s0i, s1i, s2]),
+        andGateNInp([s0i, s1, s2i]),
+        andGateNInp([s0i, s1, s2]),
+        andGateNInp([s0, s1i, s2i]),
+        andGateNInp([s0, s1i, s2]),
+        andGateNInp([s0, s1, s2i]),
+        andGateNInp([s0, s1, s2]),
+    ];
+}
+
+export function decoder5to32(select: Bit5): Bit32 {
+    const [s0, s1, s2, s3, s4] = select;
+    const [s0i, s1i, s2i, s3i, s4i] = [inverter(s0), inverter(s1), inverter(s2), inverter(s3), inverter(s4)];
+
+    return [
+        andGateNInp([s0i, s1i, s2i, s3i, s4i]),// 00000
+        andGateNInp([s0i, s1i, s2i, s3i, s4]),// 00001
+        andGateNInp([s0i, s1i, s2i, s3, s4i]),// 00010
+        andGateNInp([s0i, s1i, s2i, s3, s4]),// 00011
+        andGateNInp([s0i, s1i, s2, s3i, s4i]),// 00100
+        andGateNInp([s0i, s1i, s2, s3i, s4]),// 00101
+        andGateNInp([s0i, s1i, s2, s3, s4i]),// 00110
+        andGateNInp([s0i, s1i, s2, s3, s4]),// 00111
+        andGateNInp([s0i, s1, s2i, s3i, s4i]),// 01000
+        andGateNInp([s0i, s1, s2i, s3i, s4]),// 01001
+        andGateNInp([s0i, s1, s2i, s3, s4i]),// 01010
+        andGateNInp([s0i, s1, s2i, s3, s4]),// 01011
+        andGateNInp([s0i, s1, s2, s3i, s4i]),// 01100
+        andGateNInp([s0i, s1, s2, s3i, s4]),// 01101
+        andGateNInp([s0i, s1, s2, s3, s4i]),// 01110
+        andGateNInp([s0i, s1, s2, s3, s4]),// 01111
+        andGateNInp([s0, s1i, s2i, s3i, s4i]),// 10000
+        andGateNInp([s0, s1i, s2i, s3i, s4]),// 10001
+        andGateNInp([s0, s1i, s2i, s3, s4i]),// 10010
+        andGateNInp([s0, s1i, s2i, s3, s4]),// 10011
+        andGateNInp([s0, s1i, s2, s3i, s4i]),// 10100
+        andGateNInp([s0, s1i, s2, s3i, s4]),// 10101
+        andGateNInp([s0, s1i, s2, s3, s4i]),// 10110
+        andGateNInp([s0, s1i, s2, s3, s4]),// 10111
+        andGateNInp([s0, s1, s2i, s3i, s4i]),// 11000
+        andGateNInp([s0, s1, s2i, s3i, s4]),// 11001
+        andGateNInp([s0, s1, s2i, s3, s4i]),// 11010
+        andGateNInp([s0, s1, s2i, s3, s4]),// 11011
+        andGateNInp([s0, s1, s2, s3i, s4i]),// 11100
+        andGateNInp([s0, s1, s2, s3i, s4]),// 11101
+        andGateNInp([s0, s1, s2, s3, s4i]),// 11110
+        andGateNInp([s0, s1, s2, s3, s4]),// 11111
+    ];
 }

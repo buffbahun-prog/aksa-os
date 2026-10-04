@@ -100,12 +100,12 @@ export class HalfAdderCircuit extends LevelledCircuit {
     private build0() {
         this.view.addBox(
             {
-                x: 600,
-                y: 250,
+                x: 497,
+                y: 245,
             },
             {
-                width: 300,
-                height: 300,
+                width: 290,
+                height: 320,
             }
         );
 
@@ -113,8 +113,8 @@ export class HalfAdderCircuit extends LevelledCircuit {
         this.inpBitLabel1 = 
             this.view.addText(
                 {
-                    x: 330,
-                    y: 140,
+                    x: 270,
+                    y: 100,
                 },
                 "",
                 {fontSize: 30},
@@ -123,17 +123,17 @@ export class HalfAdderCircuit extends LevelledCircuit {
         this.inpWire1 =
             this.view.addWire(
                 {
-                    x: 300,
-                    y: 170,
+                    x: 250,
+                    y: 120,
                 },
-                147,
+                100,
                 "horz",
             );
 
         this.view.addText(
                 {
-                    x: 475,
-                    y: 173,
+                    x: 380,
+                    y: 123,
                 },
                 "A",
                 {fontSize: 30},
@@ -143,8 +143,8 @@ export class HalfAdderCircuit extends LevelledCircuit {
         this.inpBitLabel2 = 
             this.view.addText(
                 {
-                    x: 330,
-                    y: 295,
+                    x: 270,
+                    y: 200,
                 },
                 "",
                 {fontSize: 30},
@@ -153,17 +153,17 @@ export class HalfAdderCircuit extends LevelledCircuit {
         this.inpWire2 =
             this.view.addWire(
                 {
-                    x: 300,
-                    y: 320,
+                    x: 250,
+                    y: 220,
                 },
-                147,
+                100,
                 "horz",
             );
 
         this.view.addText(
                 {
-                    x: 475,
-                    y: 320,
+                    x: 380,
+                    y: 220,
                 },
                 "B",
                 {fontSize: 30},
@@ -171,7 +171,7 @@ export class HalfAdderCircuit extends LevelledCircuit {
 
         this.view.addText(
             {
-                x: 605,
+                x: 515,
                 y: 250,
             },
             "Half Adder",
@@ -182,8 +182,8 @@ export class HalfAdderCircuit extends LevelledCircuit {
 
         this.view.addText(
             {
-                x: 725,
-                y: 173,
+                x: 625,
+                y: 170,
             },
             "S",
             {fontSize: 30},
@@ -191,25 +191,25 @@ export class HalfAdderCircuit extends LevelledCircuit {
 
         this.outWireSum = this.view.addWire(
             {
-                x: 751,
+                x: 645,
                 y: 170,
             },
-            147,
-            "horz"
+            150,
+            "horz",
         );
 
         if (!this.hideConnAndSwitch)
         this.outConnectorSum = this.view.addConnector(
             {
-                x: 898,
+                x: 645 + 150,
                 y: 170,
-            }
+            },
         );
 
         if (!this.hideConnAndSwitch)
         this.outBitLabelSum = this.view.addText(
             {
-                x: 920,
+                x: 820,
                 y: 150,
             },
             "",
@@ -220,8 +220,8 @@ export class HalfAdderCircuit extends LevelledCircuit {
 
         this.view.addText(
             {
-                x: 718,
-                y: 320,
+                x: 615,
+                y: 370,
             },
             "CO",
             {fontSize: 30},
@@ -229,26 +229,26 @@ export class HalfAdderCircuit extends LevelledCircuit {
 
         this.outWireCarry = this.view.addWire(
             {
-                x: 751,
-                y: 320,
+                x: 645,
+                y: 370,
             },
-            147,
-            "horz"
+            150,
+            "horz",
         );
 
         if (!this.hideConnAndSwitch)
         this.outConnectorCarry = this.view.addConnector(
             {
-                x: 898,
-                y: 320,
-            }
+                x: 645 + 150,
+                y: 370,
+            },
         );
 
         if (!this.hideConnAndSwitch)
         this.outBitLabelCarry = this.view.addText(
             {
-                x: 920,
-                y: 298,
+                x: 820,
+                y: 350,
             },
             "",
             {
@@ -259,8 +259,8 @@ export class HalfAdderCircuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             const switch1 = this.view.addSwitch(
                 {
-                    x: 300,
-                    y: 170,
+                    x: 250,
+                    y: 120,
                 },
                 12,
                 (bit) => {
@@ -274,8 +274,8 @@ export class HalfAdderCircuit extends LevelledCircuit {
 
             const switch2 = this.view.addSwitch(
                 {
-                    x: 300,
-                    y: 320,
+                    x: 250,
+                    y: 220,
                 },
                 12,
                 (bit) => {

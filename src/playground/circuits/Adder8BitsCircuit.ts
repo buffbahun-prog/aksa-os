@@ -409,32 +409,16 @@ export class Adder8BitsCircuit extends LevelledCircuit {
     }
 
     private build1(level: 1 | 2 | 3) {
-        const levelChangedx = level === 1 ? 0 : 110;
-        const levelChangedy = level === 1 ? 0 : 8;
-
-        const levelChangedyw2 = level === 1 ? 0 : level === 2 ? 4 : -9.2;
-
-        const levelChangedywv = level === 1 ? 0: level === 2 ? 12 : 12;
-
-        const levelChangedywvh = level === 3 ? 14 : 0;
-
-        const levelChangedySwv = level === 3 ? 13.3 : 0;
-
-        const levelChangedyCOw = level === 3 ? 26.7 : 0;
-
-        const fullAdderdx = level === 1 ? 0 : 56;
-        const fullAdderdy = level === 1 ? 0 : 20;
-
         const shiftYBy = 150;
         const wireWidth = 1.5;
         for (let pin = 0; pin < 8; pin++) {
             if (!this.hideConnAndSwitch) {
                 const switch2 = this.view.addSwitch(
                     {
-                        x: 360 - levelChangedx,
-                        y: 150 + (pin * shiftYBy) + levelChangedy,
+                        x: 360,
+                        y: 150 + (pin * shiftYBy),
                     },
-                    level === 3 ? 8 : 12,
+                    12,
                     (bit) => {
 
                         this.inpBit1[pin] =
@@ -446,10 +430,10 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
                 const switch3 = this.view.addSwitch(
                     {
-                        x: 360 - levelChangedx,
-                        y: 194 + (pin * shiftYBy) + levelChangedyw2,
+                        x: 360,
+                        y: 194 + (pin * shiftYBy),
                     },
-                    level === 3 ? 8 : 12,
+                    12,
                     (bit) => {
 
                         this.inpBit2[pin] =
@@ -467,8 +451,8 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
             this.inpWire1[pin] = this.view.addWire(
                 {
-                    x: 369 - levelChangedx,
-                    y: 150 + (pin * shiftYBy) + levelChangedy,
+                    x: 369,
+                    y: 150 + (pin * shiftYBy),
                 },
                 100,
                 "horz",
@@ -477,8 +461,8 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
             this.inpWire2[pin] = this.view.addWire(
                 {
-                    x: 369 - levelChangedx,
-                    y: 194 + (pin * shiftYBy) + levelChangedyw2,
+                    x: 369,
+                    y: 194 + (pin * shiftYBy),
                 },
                 100,
                 "horz",
@@ -488,8 +472,8 @@ export class Adder8BitsCircuit extends LevelledCircuit {
             if (!this.hideConnAndSwitch) {
                 this.inpBitLabel1[pin] = this.view.addText(
                     {
-                        x: 380 - levelChangedx,
-                        y: 130 + (pin * shiftYBy) + levelChangedy  + (level === 3 ? 6 : 0),
+                        x: 380,
+                        y: 130 + (pin * shiftYBy),
                     },
                     "",
                     {fontSize: level === 3 ? 18 : 20},
@@ -497,17 +481,17 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
                 this.inpBitLabel2[pin] = this.view.addText(
                     {
-                        x: 380 - levelChangedx,
-                        y: 174 + (pin * shiftYBy) + levelChangedyw2 + (level === 3 ? 6 : 0),
+                        x: 380,
+                        y: 174 + (pin * shiftYBy),
                     },
                     "",
-                    {fontSize: level === 3 ? 18 : 20},
+                    {fontSize: 20},
                 );
 
                 this.view.addText(
                     {
-                        x: 320 - levelChangedx,
-                        y: 150 + (pin * shiftYBy) + levelChangedy,
+                        x: 320,
+                        y: 150 + (pin * shiftYBy),
                     },
                     "A" + pin,
                     {fontSize: 20},
@@ -515,8 +499,8 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
                 this.view.addText(
                     {
-                        x: 320 - levelChangedx,
-                        y: 194 + (pin * shiftYBy) + levelChangedyw2,
+                        x: 320,
+                        y: 194 + (pin * shiftYBy),
                     },
                     "B" + pin,
                     {fontSize: 20},
@@ -525,20 +509,20 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 if (pin < 7) {
                     this.carryInWirev[pin] = this.view.addWire(
                         {
-                            x: 470 - levelChangedx,
-                            y: 106.35 + (pin * shiftYBy) + levelChangedywv,
+                            x: 470,
+                            y: 106.35 + (pin * shiftYBy),
                         },
-                        120 + levelChangedywvh,
+                        120,
                         "vert",
                         wireWidth
                     );
 
                     this.carryInWirevh[pin] = this.view.addWire(
                         {
-                            x: 470 - levelChangedx,
-                            y: 106.35 + 120 + (pin * shiftYBy) + levelChangedywv + levelChangedywvh,
+                            x: 470,
+                            y: 106.35 + 120 + (pin * shiftYBy),
                         },
-                        240 + levelChangedx,
+                        240,
                         "horz",
                         wireWidth
                     );
@@ -546,9 +530,9 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                     this.carryInWirevhv[pin] = this.view.addWire(
                         {
                             x: 709.9,
-                            y: 106.9 + 120 + (pin * shiftYBy) + levelChangedywv + levelChangedywvh,
+                            y: 106.9 + 120 + (pin * shiftYBy),
                         },
-                        100 - levelChangedywv + levelChangedywvh,
+                        95,
                         "vert",
                         wireWidth
                     );
@@ -563,12 +547,12 @@ export class Adder8BitsCircuit extends LevelledCircuit {
             );
 
             this.fullAdder[pin].getView.resize(.4);
-            this.fullAdder[pin].getView.moveBy(350 - fullAdderdx, 50 + (pin * shiftYBy) + fullAdderdy);
+            this.fullAdder[pin].getView.moveBy(350, 50 + (pin * shiftYBy));
 
             this.outWireSum[pin] = this.view.addWire(
                 {
                     x: 710,
-                    y: 118 + (pin * shiftYBy) + levelChangedySwv,
+                    y: 112 + (pin * shiftYBy),
                 },
                 100,
                 "horz",
@@ -579,14 +563,14 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 this.outConnectorSum[pin] = this.view.addConnector(
                     {
                         x: 810,
-                        y: 117.8 + (pin * shiftYBy) + levelChangedySwv,
+                        y: 112 + (pin * shiftYBy),
                     }
                 );
 
                 this.outBitLabelSum[pin] = this.view.addText(
                     {
                         x: 810,
-                        y: 95 + (pin * shiftYBy) + levelChangedySwv,
+                        y: 95 + (pin * shiftYBy),
                     },
                     "",
                     {fontSize: 20}
@@ -595,7 +579,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
                 this.view.addText(
                     {
                         x: 850,
-                        y: 117.8 + (pin * shiftYBy) + levelChangedySwv,
+                        y: 112 + (pin * shiftYBy),
                     },
                     "S" + pin,
                     {fontSize: 20}
@@ -605,17 +589,17 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
         this.carryInWireVert = this.view.addWire(
             {
-                x: 469 - levelChangedx,
-                y: 1156 + levelChangedywv,
+                x: 469,
+                y: 1156,
             },
-            143 - levelChangedywv,
+            143,
             "vert",
             wireWidth
         );
 
         this.carryInWire = this.view.addWire(
             {
-                x: 369 - levelChangedx,
+                x: 369,
                 y: 1300,
             },
             100,
@@ -626,7 +610,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             const switch1 = this.view.addSwitch(
                 {
-                    x: 359 - levelChangedx,
+                    x: 359,
                     y: 1300,
                 },
                 12,
@@ -641,7 +625,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
             this.carryInBitLabel = this.view.addText(
                 {
-                    x: 380 - levelChangedx,
+                    x: 380,
                     y: 1280,
                 },
                 "",
@@ -650,7 +634,7 @@ export class Adder8BitsCircuit extends LevelledCircuit {
 
             this.view.addText(
                 {
-                    x: 290 - levelChangedx,
+                    x: 290,
                     y: 1300,
                 },
                 "Carry In",
@@ -661,9 +645,9 @@ export class Adder8BitsCircuit extends LevelledCircuit {
         this.outWireCarryVert = this.view.addWire(
             {
                 x: 710,
-                y: 178.1 + levelChangedyCOw,
+                y: 178 - 6,
             },
-            -120 - levelChangedyCOw,
+            -120 + 6,
             "vert",
             wireWidth
         );

@@ -1,69 +1,119 @@
 import { HardwareExceptionType, HardwareExpection } from "../exceptions";
-import type { Bit, Bit32, Bit8 } from "../types";
+import type { Bit, Bit32, Bit5, Bit8 } from "../types";
 import { binaryToDecimal, decimalToBinary } from "../utils/convertion";
+import { andGate, inverter } from "./gates";
+import { decoder5to32, mux2To1, mux32Bit32To1 } from "./mux_demux";
 
-export class Register32 {
-    
-    private q: Bit32;
-    private writable: boolean;
+export type Reg32 = [EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop, EnabledFlipFlop];
+export type RegFile32x32 = [Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32, Reg32];
 
-    constructor(isWritable: boolean) {
-        this.q = Array.from({length: 32}, () => 0 as Bit) as Bit32;
-        this.writable = isWritable
+export class SRLatch {
+    private q: Bit;
+
+    constructor() {
+        this.q = 0;
     }
 
-    get() {
-        return this.q;
+    setReset(controls: [set: Bit, reset: Bit]) {
+        if (controls[0] === 0 && controls[1] === 1) {
+            this.q = 0;
+        } else if (controls[0] === 1 && controls[1] === 0) {
+            this.q = 1;
+        } else if (controls[0] === 1 && controls[1] === 1) {
+            this.q = 0;
+        }
     }
 
-    set(dataIn: Bit32) {
-        if (!this.writable) return;
-        this.q = dataIn;
-    }
-
-    clear() {
-        if (!this.writable) return;
-        this.q = this.q.map(() => 0 as Bit) as Bit32;
-    }
-}
-
-export class Register8 {
-    private q: Bit8;
-    private writable: boolean;
-
-    constructor(isWritable: boolean) {
-        this.q = Array.from({length: 8}, () => 0 as Bit) as Bit8;
-        this.writable = isWritable
-    }
-
-    get() {
-        return this.q;
-    }
-
-    set(dataIn: Bit8) {
-        if (!this.writable) return;
-        this.q = dataIn;
-    }
-
-    clear() {
-        if (!this.writable) return;
-        this.q = this.q.map(() => 0 as Bit) as Bit8;
+    get(): Bit {
+        return this.q
     }
 }
 
-// export class RegisterFile16x8 {
-//     private register: Register8[];
+export function DLatch(clk: Bit, data: Bit, stateElm: SRLatch): Bit {
+    const dataInv = inverter(data);
 
-//     constructor() {
-//         this.register = Array.from({length: 16}).map((_, regNum) => {
-//             return new Register8(regNum <= 0 ? false : true);
-//         });
-//     }
+    const setCtrl = andGate(clk, data);
+    const resetCtrl = andGate(clk, dataInv);
 
-//     // registerFile(reg1ReadNum: Bit4, reg2ReadNum: Bit4, regWriteNum: Bit4, writeData: Bit8, writeControl: Bit): [readData1: Bit8, readData2: Bit8] {
-        
-//     // }
-// }
+    stateElm.setReset([setCtrl, resetCtrl]);
+
+    return stateElm.get();
+}
+
+export function DFlipFlopRun(clk: Bit, data: Bit, leaderStateElm: SRLatch, followerStateElm: SRLatch): Bit {
+    const clkInv = inverter(clk);
+
+    // leader latch
+    const leaderOutputBit = DLatch(clkInv, data, leaderStateElm);
+
+    // follower latch
+    return DLatch(clk, leaderOutputBit, followerStateElm);
+}
+
+export class DFlipFlop {
+    private leaderStateElm: SRLatch;
+    private followerStateElm: SRLatch;
+
+    constructor() {
+        this.leaderStateElm = new SRLatch();
+        this.followerStateElm = new SRLatch();
+    }
+
+    get() {
+        return this.followerStateElm.get();
+    }
+
+    set(clk: Bit, data: Bit) {
+        const clkInv = inverter(clk);
+
+        // leader latch
+        const leaderOutputBit = DLatch(clkInv, data, this.leaderStateElm);
+
+        // follower latch
+        DLatch(clk, leaderOutputBit, this.followerStateElm);
+    }
+}
+
+export class EnabledFlipFlop {
+    private stateElm: DFlipFlop;
+
+    constructor() {
+        this.stateElm = new DFlipFlop();
+    }
+
+    get() {
+        return this.stateElm.get();
+    }
+
+    set(clk: Bit, enable: Bit, data: Bit) {
+        const prevData = this.stateElm.get();
+        const newSetData = mux2To1(prevData, data, enable);
+        this.stateElm.set(clk, newSetData);
+    }
+}
+
+export function constructRegister(dataLen: number): EnabledFlipFlop[] {
+    return Array.from({length: dataLen}).fill(new EnabledFlipFlop()) as EnabledFlipFlop[];
+}
+
+export function constructRegisterFile(dataLen: number, totalReg: number): EnabledFlipFlop[][] {
+    return Array.from({length: totalReg}).fill(constructRegister(dataLen)) as EnabledFlipFlop[][]; 
+}
+
+export function registerFile32(reg: RegFile32x32, readRegNum1: Bit5, readRegNum2: Bit5, writeRegNum: Bit5, writeData: Bit32, writeControl: Bit, clk: Bit): [d1: Bit32, d2: Bit32] {
+    const writeRegPos = decoder5to32(writeRegNum);
+    writeRegPos.forEach((isSelectedBit, indx) => {
+        const isWriteBit = andGate(writeControl, isSelectedBit);
+        reg[indx].forEach((r, i) => r.set(clk, isWriteBit, writeData[i]));
+    });
+
+    const regData = reg.map(r => r.map(ir => ir.get())) as Bit32[];
+
+    const d1 = mux32Bit32To1(regData, readRegNum1);
+    const d2 = mux32Bit32To1(regData, readRegNum2);
+
+    return [d1, d2];
+}
 
 export class RAM {
     private data: SharedArrayBuffer;

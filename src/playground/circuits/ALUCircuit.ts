@@ -96,7 +96,7 @@ export class ALU8BitsCircuit extends LevelledCircuit {
     private hideConnAndSwitch: boolean;
 
     constructor(hide = false) {
-        super(2);
+        super(4);
 
         this.hideConnAndSwitch = hide;
 
@@ -149,6 +149,8 @@ export class ALU8BitsCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
+            case 4:
                 this.build1();
                 break;
         }
@@ -165,6 +167,8 @@ export class ALU8BitsCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
+            case 4:
                 this.update1();
                 break;
         }

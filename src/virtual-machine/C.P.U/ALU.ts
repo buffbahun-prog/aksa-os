@@ -81,8 +81,8 @@ export function ALU(inp1: Bit32, inp2: Bit32, controlBits: Bit3): [result: Bit32
    const aluResult = Array.from({length: 32}) as Bit32;
 
    for (let i = 31; i >= 0; i--) {
-    const a = inp1[i];
-    const b = andGate(inp2[i], isNotPassBOp);
+    const a = andGate(inp1[i], isNotPassBOp);
+    const b = inp2[i];
 
     const [result, carryOut] = aluBit1(msbCarryOut, a, b, mappedAluCode);
     msbCarryIn = msbCarryOut;

@@ -50,6 +50,24 @@ export class ALU8BitsCircuitCard
                     zoom: .35,
                 },
 
+                {
+                    position: {
+                        x: -800,
+                        y: -400,
+                    },
+
+                    zoom: .35,
+                },
+
+                {
+                    position: {
+                        x: -800,
+                        y: -400,
+                    },
+
+                    zoom: .35,
+                },
+
             ],
 
         };

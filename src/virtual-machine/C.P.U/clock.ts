@@ -1,4 +1,5 @@
 import type { Bit } from "../types";
+import { xorGate } from "./gates";
 
 export class Clock extends EventTarget {
     private lastTime: number;
@@ -8,8 +9,11 @@ export class Clock extends EventTarget {
     private isActive: boolean;
     rafId: number | null;
 
+    private clockBitValue: Bit;
+
     constructor(hertz: number) {
         super();
+        this.clockBitValue = 1;
         this.lastTime = 0;
         this.accumulatedTime = 0;
         this.TICK_INTERVAL = 1000 / hertz;
@@ -30,6 +34,7 @@ export class Clock extends EventTarget {
 
     stop() {
         this.isActive = false;
+        this.clockBitValue = 1;
         if (this.rafId) {
             cancelAnimationFrame(this.rafId);
         }
@@ -56,6 +61,7 @@ export class Clock extends EventTarget {
 
         while (this.accumulatedTime >= this.TICK_INTERVAL) {
             this.emitClk();
+            this.clockBitValue = xorGate(1, this.clockBitValue);
             this.accumulatedTime -= this.TICK_INTERVAL;
         }
 
@@ -64,7 +70,7 @@ export class Clock extends EventTarget {
 
     private emitClk() {
         const event = new CustomEvent('clk', {
-            detail: { bit: 1 as Bit },
+            detail: { bit: this.clockBitValue },
         })
 
         this.dispatchEvent(event);

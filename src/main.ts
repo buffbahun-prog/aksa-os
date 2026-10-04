@@ -2,6 +2,8 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { Router } from "./router/Router";
 import { routes } from "./router/routes";
 import { SiteNav } from "./shared-layout/SiteNav";
+// import { Clock } from "./virtual-machine/C.P.U/clock";
+// import { DFlipFlop } from "./virtual-machine/C.P.U/memory";
 
 const outlet =
     document.getElementById(
@@ -39,3 +41,6 @@ if (!navElement) {
 
 
 await router.start();
+
+// const clock = new Clock(1);
+// const flipflop = new DFlipFlop(clock);

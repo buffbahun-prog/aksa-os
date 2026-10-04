@@ -564,7 +564,7 @@ export class Selector4to1Circuit extends LevelledCircuit {
 
         this.view.addOrGate(
             {
-                x: 800,
+                x: 762,
                 y: 400,
             },
             {
@@ -587,10 +587,10 @@ export class Selector4to1Circuit extends LevelledCircuit {
 
         this.outWire = this.view.addWire(
             {
-                x: 840,
+                x: 803,
                 y: 400,
             },
-            106 - 35,
+            106,
             "horz",
         );
 
