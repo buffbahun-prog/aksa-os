@@ -1584,6 +1584,43 @@ addSwitch(
     };
 }
 
+addDashedBox(
+    position: Position,
+    size: Size,
+    style: BoxStyle = {},
+    display = true,
+): BoxResult {
+    const boxId = this.createBoxId();
+    const box = this.createSvgElement("rect");
+
+    box.id = boxId;
+    box.dataset.type = "box";
+
+    if (!display) {
+        box.setAttribute("display", "none");
+    }
+
+    box.setAttribute("x", String(-size.width / 2));
+    box.setAttribute("y", String(-size.height / 2));
+    box.setAttribute("width", String(size.width));
+    box.setAttribute("height", String(size.height));
+    box.setAttribute("rx", String(style.radius ?? 8));
+
+    box.setAttribute("fill", "none");
+    box.setAttribute("stroke", style.stroke ?? this.COLORS.gateStroke);
+    box.setAttribute("stroke-width", String(style.strokeWidth ?? 3));
+    box.setAttribute("stroke-dasharray", "6 4");
+
+    box.setAttribute(
+        "transform",
+        `translate(${position.x}, ${position.y})`,
+    );
+
+    this.group.appendChild(box);
+
+    return { boxId };
+}
+
     // ========================================================
     // Text Label
     // ========================================================

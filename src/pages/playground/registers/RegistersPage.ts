@@ -1,9 +1,11 @@
+import { DFlipFlopCircuitCard } from "../../../playground/circuit-card/DFlipFlopCircuitCard";
 import { DLatchCircuitCard } from "../../../playground/circuit-card/DLatchCircuitCard";
 import { Page, type PageContext } from "../../../router/Page";
 
 export class RegistersPage extends Page {
 
     private readonly dLatchCard: DLatchCircuitCard;
+    private readonly dFlipFlopCard: DFlipFlopCircuitCard;
 
 
     constructor(
@@ -45,6 +47,7 @@ export class RegistersPage extends Page {
 
 
         this.dLatchCard = new DLatchCircuitCard();
+        this.dFlipFlopCard = new DFlipFlopCircuitCard();
     }
 
 
@@ -71,6 +74,9 @@ export class RegistersPage extends Page {
             case "dlatch":
                 card = this.dLatchCard.getTemplateClone();
                 break;
+            case "dflipflop":
+                card = this.dFlipFlopCard.getTemplateClone();
+                break;
         }
 
         if (showCircuit) {
@@ -89,7 +95,8 @@ export class RegistersPage extends Page {
                 p.textContent = "Explore and interact with flip-flops, registers and clocked storage circuits.";
             }
             const gatesList = [
-                {tmpl: this.dLatchCard.getTemplateClone(), h2: "DLatch"},
+                {tmpl: this.dLatchCard.getTemplateClone(), h2: "D Latch"},
+                {tmpl: this.dFlipFlopCard.getTemplateClone(), h2: "D Flip-Flop"},
             ];
             gatesList.forEach(gl => {
                 if (!gl.tmpl) return;

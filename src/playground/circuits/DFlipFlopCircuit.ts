@@ -1,10 +1,10 @@
-import { andGate, inverter } from "../../virtual-machine/C.P.U/gates";
-import { DLatch, SRLatch } from "../../virtual-machine/C.P.U/memory";
+import { inverter } from "../../virtual-machine/C.P.U/gates";
 import type { Bit} from "../../virtual-machine/types";
 import type { ConnectorResult, TextResult, WireResult } from "../core/CircuitSvg";
 import { LevelledCircuit } from "../core/LevelledCircuit";
+import { DLatchCircuit } from "./DLatchCircuit";
 
-export class DLatchCircuit extends LevelledCircuit {
+export class DFlipFlopCircuit extends LevelledCircuit {
     private inpData: Bit = 0;
     private inpClk: Bit = 0;
 
@@ -14,10 +14,9 @@ export class DLatchCircuit extends LevelledCircuit {
     inpDataWires: WireResult[] = [];
     inpDataConns: ConnectorResult[] = [];
 
-    dataInvWires: WireResult[] = [];
+    clkInvWires: WireResult[] = [];
 
-    resetWires: WireResult[] = [];
-    setWires: WireResult[] = [];
+    leadrQOutWires: WireResult[] = [];
 
     qOutWires: WireResult[] = [];
     qOutConns: ConnectorResult[] = [];
@@ -31,18 +30,24 @@ export class DLatchCircuit extends LevelledCircuit {
     outQBitLabel!: TextResult;
     outQInvBitLabel!: TextResult;
 
-    private stateElm: SRLatch;
+    private leaderStateElm: DLatchCircuit;
+    private followerStateElm: DLatchCircuit;
 
     private hideConnAndSwitch: boolean;
 
     private finalResult: [q: Bit, qInv: Bit] = [0, 1];
 
     constructor(hide = false) {
-        super(1);
+        super(2);
 
         this.hideConnAndSwitch = hide;
 
-        this.stateElm = new SRLatch();
+        this.leaderStateElm = new DLatchCircuit(true);
+        this.leaderStateElm.getView.moveBy(71, 200);
+        this.leaderStateElm.getView.resize(.6);
+        this.followerStateElm = new DLatchCircuit(true);
+        this.followerStateElm.getView.moveBy(500, 200);
+        this.followerStateElm.getView.resize(.6);
 
         this.build();
 
@@ -63,6 +68,7 @@ export class DLatchCircuit extends LevelledCircuit {
                 this.build0();
                 break;
             case 1:
+            case 2:
                 this.build1();
                 break;
         }
@@ -78,6 +84,7 @@ export class DLatchCircuit extends LevelledCircuit {
                 this.update0();
                 break;
             case 1:
+            case 2:
                 this.update1();
                 break;
         }
@@ -88,57 +95,131 @@ export class DLatchCircuit extends LevelledCircuit {
 
         this.view.addBox(
             {
-                x: 425,
-                y: 400,
+                x: 540,
+                y: 427,
             },
             {
-                width: 445,
-                height: 280,
+                width: 695,
+                height: 250,
             }
         );
 
         this.view.addText(
             {
-                x: 425,
-                y: 400,
+                x: 560,
+                y: 312.5,
             },
-            "D Latch",
-            {
-                fontSize: 60
-            }
+            "▼",
+            {fontSize: 20},
         );
 
         this.view.addText(
             {
-                x: 250,
-                y: 300,
+                x: 540,
+                y: 427,
+            },
+            "D Flip-Flop",
+            {fontSize: 80}
+        );
+
+        this.inpClkWires = [
+            this.view.addWire(
+                {
+                    x: 560,
+                    y: 250,
+                },
+                50,
+                "vert",
+            ),
+        ];
+
+        this.inpClkConns = [
+        ];
+
+        this.inpDataWires = [
+            this.view.addWire(
+                {
+                    x: 100,
+                    y: 500,
+                },
+                90,
+                "horz",
+            ),
+        ];
+
+        this.inpDataConns = [
+        ];
+
+        this.qOutWires = [
+            this.view.addWire(
+                {
+                    x: 890,
+                    y: 404,
+                },
+                120,
+                "horz",
+            ),
+        ];
+
+        this.qOutConns = [
+            this.view.addConnector(
+                {
+                    x: 890 + 120,
+                    y: 404,
+                },
+                !this.hideConnAndSwitch ? 6 : 0,
+            ),
+        ];
+
+        this.qInvOutWires = [
+            this.view.addWire(
+                {
+                    x: 890,
+                    y: 476,
+                },
+                120,
+                "horz",
+            ),
+        ];
+
+        this.qInvOutConns = [
+            this.view.addConnector(
+                {
+                    x: 890 + 120,
+                    y: 476,
+                },
+                !this.hideConnAndSwitch ? 6 : 0,
+            ),
+        ];
+
+        this.view.addText(
+            {
+                x: 560,
+                y: 345,
             },
             "CLK",
             {fontSize: 30}
         );
-
         this.view.addText(
             {
-                x: 235,
+                x: 220,
                 y: 500,
             },
             "D",
             {fontSize: 30}
         );
-
         this.view.addText(
             {
-                x: 615,
-                y: 345,
+                x: 860,
+                y: 404,
             },
             "Q",
             {fontSize: 30}
         );
-
         this.view.addText(
             {
-                x: 615,
-                y: 465,
+                x: 860,
+                y: 476,
             },
             "Q̅",
             {fontSize: 30}
@@ -147,8 +228,8 @@ export class DLatchCircuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             this.inpClkBitLabel = this.view.addText(
                 {
-                    x: 130,
-                    y: 280,
+                    x: 590,
+                    y: 260,
                 },
                 "",
                 {fontSize: 30}
@@ -165,8 +246,8 @@ export class DLatchCircuit extends LevelledCircuit {
 
             this.outQBitLabel = this.view.addText(
                 {
-                    x: 750,
-                    y: 320,
+                    x: 1000,
+                    y: 380,
                 },
                 "",
                 {fontSize: 30}
@@ -174,86 +255,20 @@ export class DLatchCircuit extends LevelledCircuit {
 
             this.outQInvBitLabel = this.view.addText(
                 {
-                    x: 750,
-                    y: 440,
+                    x: 1000,
+                    y: 450,
                 },
                 "",
                 {fontSize: 30}
             );
         }
 
-        this.inpClkWires = [
-            this.view.addWire(
-                {
-                    x: 100,
-                    y: 300,
-                },
-                100,
-                "horz",
-            ),
-        ];
-
-        this.inpClkConns = [];
-
-        this.inpDataWires = [
-            this.view.addWire(
-                {
-                    x: 100,
-                    y: 500,
-                },
-                100,
-                "horz",
-            ),
-        ];
-
-        this.inpDataConns = [];
-
-        this.qOutWires = [
-            this.view.addWire(
-                {
-                    x: 650,
-                    y: 340,
-                },
-                120,
-                "horz",
-            ),
-        ];
-
-        this.qOutConns = !this.hideConnAndSwitch ? [
-            this.view.addConnector(
-                {
-                    x: 650 + 120,
-                    y: 340,
-                }
-            ),
-        ] : [];
-
-        this.qInvOutWires = [
-            this.view.addWire(
-                {
-                    x: 650,
-                    y: 460,
-                },
-                120,
-                "horz",
-            ),
-        ];
-
-        this.qInvOutConns = !this.hideConnAndSwitch ? [
-            this.view.addConnector(
-                {
-                    x: 650 + 120,
-                    y: 460,
-                }
-            ),
-        ] : [];
-
         if (!this.hideConnAndSwitch) {
 
             const switchInpClk = this.view.addSwitch(
             {
-                x: 100,
-                y: 300,
+                x: 560,
+                y: 250,
             },
             12,
             (bit) => {
@@ -280,58 +295,45 @@ export class DLatchCircuit extends LevelledCircuit {
             },
         );
 
-            this.view.setSwitchBit(switchInpClk.switchId, this.inpClk);
-            this.view.setSwitchBit(switchInpData.switchId, this.inpData);
+        this.view.setSwitchBit(switchInpClk.switchId, this.inpClk);
+        this.view.setSwitchBit(switchInpData.switchId, this.inpData);
         }
     }
 
     private build1() {
+        const level = this.level;
+        // const level = 2;
 
-        if (!this.hideConnAndSwitch) {
-            this.view.addDashedBox(
-                {
-                    x: 620,
-                    y: 400,
-                },
-                {
-                    width: 200,
-                    height: 300,
-                }
-            );
+        this.leaderStateElm.setLevel(level - 1, false);
+        this.view.element.appendChild(this.leaderStateElm.element);
 
-            this.view.addText(
-                {
-                    x: 620,
-                    y: 280,
-                },
-                "RS Latch",
-                {fontSize: 30}
-            );
-        }
+        this.followerStateElm.setLevel(level - 1, false);
+        this.view.element.appendChild(this.followerStateElm.element);
+
 
         this.inpClkWires = [
             this.view.addWire(
                 {
-                    x: 100,
-                    y: 300,
+                    x: 560,
+                    y: 250,
                 },
-                300,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 150,
-                    y: 300,
-                },
-                150,
+                130,
                 "vert",
             ),
             this.view.addWire(
                 {
-                    x: 150,
-                    y: 300 + 150,
+                    x: 560,
+                    y: 250 + 130,
                 },
-                250,
+                60,
+                "horz",
+            ),
+            this.view.addWire(
+                {
+                    x: 560,
+                    y: 320,
+                },
+                -100,
                 "horz",
             ),
         ];
@@ -339,8 +341,8 @@ export class DLatchCircuit extends LevelledCircuit {
         this.inpClkConns = [
             this.view.addConnector(
                 {
-                    x: 150,
-                    y: 300,
+                    x: 560,
+                    y: 320,
                 },
             ),
         ];
@@ -351,130 +353,88 @@ export class DLatchCircuit extends LevelledCircuit {
                     x: 100,
                     y: 500,
                 },
-                300,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 200,
-                    y: 500,
-                },
-                -150,
-                "vert",
-            ),
-            this.view.addWire(
-                {
-                    x: 200,
-                    y: 500 - 150,
-                },
-                50,
+                90,
                 "horz",
             ),
         ];
 
         this.inpDataConns = [
-            this.view.addConnector(
-                {
-                    x: 200,
-                    y: 500,
-                },
-            ),
         ];
 
         this.view.addNotGate(
             {
-                x: 250,
-                y: 500 - 150,
+                x: 437,
+                y: 320,
             },
             {
                 width: 40,
                 height: 40,
-            }
+            },
+            true,
+            "left"
         );
 
-        this.dataInvWires = [
+        this.clkInvWires = [
             this.view.addWire(
                 {
-                    x: 290,
-                    y: 500 - 150,
+                    x: 395,
+                    y: 320,
                 },
-                110,
+                -265,
+                "horz",
+            ),
+            this.view.addWire(
+                {
+                    x: 395 - 265,
+                    y: 320,
+                },
+                60,
+                "vert",
+            ),
+            this.view.addWire(
+                {
+                    x: 395 - 265,
+                    y: 320 + 60,
+                },
+                60,
                 "horz",
             ),
         ];
 
-        this.view.addAndGate(
-            {
-                x: 440,
-                y: 325,
-            },
-            {
-                width: 80,
-                height: 80,
-            }
-        );
-
-        this.resetWires = [
+        this.leadrQOutWires = [
             this.view.addWire(
                 {
-                    x: 480,
-                    y: 325,
+                    x: 461,
+                    y: 404,
                 },
-                100,
+                90,
+                "horz",
+            ),
+            this.view.addWire(
+                {
+                    x: 461 + 90,
+                    y: 404,
+                },
+                96,
+                "vert",
+            ),
+            this.view.addWire(
+                {
+                    x: 461 + 90,
+                    y: 404 + 96,
+                },
+                69,
                 "horz",
             ),
         ];
-
-        this.view.addNorGate(
-            {
-                x: 600,
-                y: 340,
-            },
-            {
-                width: 60,
-                height: 60,
-            }
-        );
 
         this.qOutWires = [
             this.view.addWire(
                 {
-                    x: 650,
-                    y: 340,
+                    x: 890,
+                    y: 404,
                 },
                 120,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 700,
-                    y: 340,
-                },
-                70,
-                "vert",
-            ),
-            this.view.addWire(
-                {
-                    x: 700,
-                    y: 340 + 70,
-                },
-                -150,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 700 - 150,
-                    y: 340 + 70,
-                },
-                35,
-                "vert",
-            ),
-            this.view.addWire(
-                {
-                    x: 700 - 150,
-                    y: 340 + 70 + 35,
-                },
-                30,
                 "horz",
             ),
         ];
@@ -482,92 +442,20 @@ export class DLatchCircuit extends LevelledCircuit {
         this.qOutConns = [
             this.view.addConnector(
                 {
-                    x: 650 + 120,
-                    y: 340,
+                    x: 890 + 120,
+                    y: 404,
                 },
                 !this.hideConnAndSwitch ? 6 : 0,
             ),
-            this.view.addConnector(
-                {
-                    x: 700,
-                    y: 340,
-                }
-            ),
         ];
-
-
-        this.view.addAndGate(
-            {
-                x: 440,
-                y: 475,
-            },
-            {
-                width: 80,
-                height: 80,
-            }
-        );
-
-        this.setWires = [
-            this.view.addWire(
-                {
-                    x: 480,
-                    y: 475,
-                },
-                100,
-                "horz",
-            ),
-        ];
-
-        this.view.addNorGate(
-            {
-                x: 600,
-                y: 460,
-            },
-            {
-                width: 60,
-                height: 60,
-            }
-        );
 
         this.qInvOutWires = [
             this.view.addWire(
                 {
-                    x: 650,
-                    y: 460,
+                    x: 890,
+                    y: 476,
                 },
                 120,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 680,
-                    y: 460,
-                },
-                -70,
-                "vert",
-            ),
-            this.view.addWire(
-                {
-                    x: 680,
-                    y: 460 - 70,
-                },
-                -130,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 680 - 130,
-                    y: 460 - 70,
-                },
-                -35,
-                "vert",
-            ),
-            this.view.addWire(
-                {
-                    x: 680 - 130,
-                    y: 460 - 70 - 35,
-                },
-                30,
                 "horz",
             ),
         ];
@@ -575,24 +463,18 @@ export class DLatchCircuit extends LevelledCircuit {
         this.qInvOutConns = [
             this.view.addConnector(
                 {
-                    x: 650 + 120,
-                    y: 460,
+                    x: 890 + 120,
+                    y: 476,
                 },
                 !this.hideConnAndSwitch ? 6 : 0,
-            ),
-            this.view.addConnector(
-                {
-                    x: 680,
-                    y: 460,
-                }
             ),
         ];
 
         if (!this.hideConnAndSwitch) {
             this.view.addText(
                 {
-                    x: 40,
-                    y: 300,
+                    x: 560,
+                    y: 210,
                 },
                 "CLK",
                 {fontSize: 30}
@@ -609,8 +491,8 @@ export class DLatchCircuit extends LevelledCircuit {
 
             this.view.addText(
                 {
-                    x: 800,
-                    y: 345,
+                    x: 1050,
+                    y: 404,
                 },
                 "Q",
                 {fontSize: 30}
@@ -618,8 +500,8 @@ export class DLatchCircuit extends LevelledCircuit {
 
             this.view.addText(
                 {
-                    x: 800,
-                    y: 465,
+                    x: 1050,
+                    y: 476,
                 },
                 "Q̅",
                 {fontSize: 30}
@@ -627,8 +509,8 @@ export class DLatchCircuit extends LevelledCircuit {
 
             this.inpClkBitLabel = this.view.addText(
                 {
-                    x: 130,
-                    y: 280,
+                    x: 590,
+                    y: 260,
                 },
                 "",
                 {fontSize: 30}
@@ -645,8 +527,8 @@ export class DLatchCircuit extends LevelledCircuit {
 
             this.outQBitLabel = this.view.addText(
                 {
-                    x: 750,
-                    y: 320,
+                    x: 1000,
+                    y: 380,
                 },
                 "",
                 {fontSize: 30}
@@ -654,8 +536,8 @@ export class DLatchCircuit extends LevelledCircuit {
 
             this.outQInvBitLabel = this.view.addText(
                 {
-                    x: 750,
-                    y: 440,
+                    x: 1000,
+                    y: 450,
                 },
                 "",
                 {fontSize: 30}
@@ -666,8 +548,8 @@ export class DLatchCircuit extends LevelledCircuit {
 
             const switchInpClk = this.view.addSwitch(
             {
-                x: 100,
-                y: 300,
+                x: 560,
+                y: 250,
             },
             12,
             (bit) => {
@@ -715,8 +597,14 @@ export class DLatchCircuit extends LevelledCircuit {
             this.inpClkConns,
         );
         if (this.inpClkBitLabel) this.view.setTextBitAnimated(this.inpClkBitLabel.textId, clk);
+        
+        const clkInv = inverter(clk);
 
-        const q = DLatch(clk, data, this.stateElm);
+        // leader latch
+        const [leaderOutputBit, _] = this.leaderStateElm.setInputs(clkInv, data);
+
+        // follower latch
+        const [q, qInv] = this.followerStateElm.setInputs(clk, leaderOutputBit);
         this.setSignal(
             q,
             this.qOutWires,
@@ -724,7 +612,6 @@ export class DLatchCircuit extends LevelledCircuit {
         );
         if (this.outQBitLabel) this.view.setTextBitAnimated(this.outQBitLabel.textId, q);
 
-        const qInv = inverter(q);
         this.setSignal(
             qInv,
             this.qInvOutWires,
@@ -752,30 +639,23 @@ export class DLatchCircuit extends LevelledCircuit {
         );
         if (this.inpClkBitLabel) this.view.setTextBitAnimated(this.inpClkBitLabel.textId, clk);
         
-        const dataInv = inverter(data);
+        const clkInv = inverter(clk);
         this.setSignal(
-            dataInv,
-            this.dataInvWires,
-            [],
-        );
-        
-        const setCtrl = andGate(clk, data);
-        this.setSignal(
-            setCtrl,
-            this.setWires,
+            clkInv,
+            this.clkInvWires,
             [],
         );
 
-        const resetCtrl = andGate(clk, dataInv);
+        // leader latch
+        const [leaderOutputBit, _] = this.leaderStateElm.setInputs(clkInv, data);
         this.setSignal(
-            resetCtrl,
-            this.resetWires,
+            leaderOutputBit,
+            this.leadrQOutWires,
             [],
         );
-        
-        this.stateElm.setReset([setCtrl, resetCtrl]);
 
-        const q = this.stateElm.get();
+        // follower latch
+        const [q, qInv] = this.followerStateElm.setInputs(clk, leaderOutputBit);
         this.setSignal(
             q,
             this.qOutWires,
@@ -783,7 +663,6 @@ export class DLatchCircuit extends LevelledCircuit {
         );
         if (this.outQBitLabel) this.view.setTextBitAnimated(this.outQBitLabel.textId, q);
 
-        const qInv = inverter(q);
         this.setSignal(
             qInv,
             this.qInvOutWires,
@@ -792,6 +671,7 @@ export class DLatchCircuit extends LevelledCircuit {
         if (this.outQInvBitLabel) this.view.setTextBitAnimated(this.outQInvBitLabel.textId, qInv);
 
         this.finalResult = [q, qInv];
+        
     }
 
     // =========================================================
