@@ -1,22 +1,22 @@
-import { inverter } from "../../virtual-machine/C.P.U/gates";
+import { mux2To1 } from "../../virtual-machine/C.P.U/mux_demux";
 import type { Bit} from "../../virtual-machine/types";
 import type { ConnectorResult, TextResult, WireResult } from "../core/CircuitSvg";
 import { LevelledCircuit } from "../core/LevelledCircuit";
-import { DLatchCircuit } from "./DLatchCircuit";
+import { DFlipFlopCircuit } from "./DFlipFlopCircuit";
+import { Selector2to1Circuit } from "./Selector2to1";
 
-export class DFlipFlopCircuit extends LevelledCircuit {
+export class EnabledFlipFlopCircuit extends LevelledCircuit {
     private inpData: Bit = 0;
     private inpClk: Bit = 0;
+    private inpEnbl: Bit = 0;
 
     inpClkWires: WireResult[] = [];
-    inpClkConns: ConnectorResult[] = [];
 
     inpDataWires: WireResult[] = [];
-    inpDataConns: ConnectorResult[] = [];
 
-    clkInvWires: WireResult[] = [];
+    inpEnblWires: WireResult[] = [];
 
-    leadrQOutWires: WireResult[] = [];
+    // muxOutWires: WireResult[] = [];
 
     qOutWires: WireResult[] = [];
     qOutConns: ConnectorResult[] = [];
@@ -26,28 +26,30 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
     inpClkBitLabel!: TextResult;
     inpDataBitLabel!: TextResult;
+    inpEnblBitLabel!: TextResult;
 
     outQBitLabel!: TextResult;
     outQInvBitLabel!: TextResult;
 
-    private leaderStateElm: DLatchCircuit;
-    private followerStateElm: DLatchCircuit;
+    private stateElm: DFlipFlopCircuit;
+    private mux: Selector2to1Circuit;
 
     private hideConnAndSwitch: boolean;
 
     private finalResult: [q: Bit, qInv: Bit] = [0, 1];
 
     constructor(hide = false) {
-        super(2);
+        super(3);
 
         this.hideConnAndSwitch = hide;
 
-        this.leaderStateElm = new DLatchCircuit(true);
-        this.leaderStateElm.getView.moveBy(71, 200);
-        this.leaderStateElm.getView.resize(.6);
-        this.followerStateElm = new DLatchCircuit(true);
-        this.followerStateElm.getView.moveBy(500, 200);
-        this.followerStateElm.getView.resize(.6);
+        this.stateElm = new DFlipFlopCircuit(true);
+        this.stateElm.getView.moveBy(333, 170);
+        this.stateElm.getView.resize(.6);
+
+        this.mux = new Selector2to1Circuit(true);
+        this.mux.getView.moveBy(-40, 290);
+        this.mux.getView.resize(.6);
 
         this.build();
 
@@ -69,6 +71,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.build1();
                 break;
         }
@@ -85,6 +88,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.update1();
                 break;
         }
@@ -95,19 +99,19 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
         this.view.addBox(
             {
-                x: 540,
-                y: 427,
+                x: 555,
+                y: 460,
             },
             {
-                width: 695,
-                height: 250,
+                width: 735,
+                height: 260,
             }
         );
 
         this.view.addText(
             {
-                x: 560,
-                y: 312.5,
+                x: 669,
+                y: 341,
             },
             "▼",
             {fontSize: 20},
@@ -115,25 +119,22 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
         this.view.addText(
             {
-                x: 540,
-                y: 427,
+                x: 555,
+                y: 460,
             },
-            "D Flip-Flop",
-            {fontSize: 80}
+            "Enabled Flip-Flop",
+            {fontSize: 70}
         );
 
         this.inpClkWires = [
             this.view.addWire(
                 {
-                    x: 560,
+                    x: 669,
                     y: 250,
                 },
-                50,
+                77,
                 "vert",
             ),
-        ];
-
-        this.inpClkConns = [
         ];
 
         this.inpDataWires = [
@@ -142,21 +143,29 @@ export class DFlipFlopCircuit extends LevelledCircuit {
                     x: 100,
                     y: 500,
                 },
-                90,
+                85,
                 "horz",
             ),
         ];
 
-        this.inpDataConns = [
+        this.inpEnblWires = [
+            this.view.addWire(
+                {
+                    x: 400,
+                    y: 650,
+                },
+                -56,
+                "vert",
+            ),
         ];
 
         this.qOutWires = [
             this.view.addWire(
                 {
-                    x: 890,
-                    y: 404,
+                    x: 925,
+                    y: 412.5,
                 },
-                120,
+                80,
                 "horz",
             ),
         ];
@@ -165,7 +174,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.view.addConnector(
                 {
                     x: 890 + 120,
-                    y: 404,
+                    y: 412.5,
                 },
                 !this.hideConnAndSwitch ? 6 : 0,
             ),
@@ -174,10 +183,10 @@ export class DFlipFlopCircuit extends LevelledCircuit {
         this.qInvOutWires = [
             this.view.addWire(
                 {
-                    x: 890,
-                    y: 476,
+                    x: 925,
+                    y: 455.5,
                 },
-                120,
+                80,
                 "horz",
             ),
         ];
@@ -186,7 +195,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.view.addConnector(
                 {
                     x: 890 + 120,
-                    y: 476,
+                    y: 455.5,
                 },
                 !this.hideConnAndSwitch ? 6 : 0,
             ),
@@ -194,32 +203,44 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
         this.view.addText(
             {
-                x: 560,
-                y: 345,
+                x: 669,
+                y: 370,
             },
             "CLK",
             {fontSize: 30}
         );
+
         this.view.addText(
             {
-                x: 220,
+                x: 210,
                 y: 500,
             },
             "D",
             {fontSize: 30}
         );
+
         this.view.addText(
             {
-                x: 860,
-                y: 404,
+                x: 400,
+                y: 565,
+            },
+            "EN",
+            {fontSize: 30}
+        );
+
+        this.view.addText(
+            {
+                x: 890,
+                y: 412,
             },
             "Q",
             {fontSize: 30}
         );
+
         this.view.addText(
             {
-                x: 860,
-                y: 476,
+                x: 890,
+                y: 457,
             },
             "Q̅",
             {fontSize: 30}
@@ -228,11 +249,20 @@ export class DFlipFlopCircuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             this.inpClkBitLabel = this.view.addText(
                 {
-                    x: 590,
+                    x: 699,
                     y: 260,
                 },
                 "",
                 {fontSize: 30}
+            );
+
+            this.inpEnblBitLabel = this.view.addText(
+                {
+                    x: 430,
+                    y: 640,
+                },
+                "",
+                {fontSize: 30},
             );
 
             this.inpDataBitLabel = this.view.addText(
@@ -247,7 +277,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.outQBitLabel = this.view.addText(
                 {
                     x: 1000,
-                    y: 380,
+                    y: 390,
                 },
                 "",
                 {fontSize: 30}
@@ -256,7 +286,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.outQInvBitLabel = this.view.addText(
                 {
                     x: 1000,
-                    y: 450,
+                    y: 483,
                 },
                 "",
                 {fontSize: 30}
@@ -267,7 +297,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
             const switchInpClk = this.view.addSwitch(
             {
-                x: 560,
+                x: 669,
                 y: 250,
             },
             12,
@@ -295,55 +325,42 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             },
         );
 
+        const switchInpEnbl = this.view.addSwitch(
+            {
+                x: 400,
+                y: 650,
+            },
+            12,
+            (bit) => {
+                this.inpEnbl = bit;
+                this.update();
+            },
+        );
+
         this.view.setSwitchBit(switchInpClk.switchId, this.inpClk);
         this.view.setSwitchBit(switchInpData.switchId, this.inpData);
+        this.view.setSwitchBit(switchInpEnbl.switchId, this.inpEnbl);
         }
     }
 
     private build1() {
         const level = this.level;
-        // const level = 2;
 
-        this.leaderStateElm.setLevel(level - 1, false);
-        this.view.element.appendChild(this.leaderStateElm.element);
+        this.stateElm.setLevel(level - 1, false);
+        this.view.element.appendChild(this.stateElm.element);
 
-        this.followerStateElm.setLevel(level - 1, false);
-        this.view.element.appendChild(this.followerStateElm.element);
+        this.mux.setLevel(level - 1, false);
+        this.view.element.appendChild(this.mux.element);
 
 
         this.inpClkWires = [
             this.view.addWire(
                 {
-                    x: 560,
+                    x: 669,
                     y: 250,
                 },
-                130,
+                98,
                 "vert",
-            ),
-            this.view.addWire(
-                {
-                    x: 560,
-                    y: 250 + 130,
-                },
-                60,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 560,
-                    y: 320,
-                },
-                -100,
-                "horz",
-            ),
-        ];
-
-        this.inpClkConns = [
-            this.view.addConnector(
-                {
-                    x: 560,
-                    y: 320,
-                },
             ),
         ];
 
@@ -353,88 +370,77 @@ export class DFlipFlopCircuit extends LevelledCircuit {
                     x: 100,
                     y: 500,
                 },
-                90,
+                157,
                 "horz",
             ),
         ];
 
-        this.inpDataConns = [
-        ];
-
-        this.view.addNotGate(
-            {
-                x: 437,
-                y: 320,
-            },
-            {
-                width: 40,
-                height: 40,
-            },
-            true,
-            "left"
-        );
-
-        this.clkInvWires = [
+        this.inpEnblWires = [
             this.view.addWire(
                 {
-                    x: 395,
-                    y: 320,
+                    x: 400,
+                    y: 650,
                 },
-                -265,
-                "horz",
-            ),
-            this.view.addWire(
-                {
-                    x: 395 - 265,
-                    y: 320,
-                },
-                60,
+                -312,
                 "vert",
             ),
             this.view.addWire(
                 {
-                    x: 395 - 265,
-                    y: 320 + 60,
+                    x: 400,
+                    y: 650 - 312,
                 },
-                60,
-                "horz",
-            ),
-        ];
-
-        this.leadrQOutWires = [
-            this.view.addWire(
-                {
-                    x: 461,
-                    y: 404,
-                },
-                90,
+                -80,
                 "horz",
             ),
             this.view.addWire(
                 {
-                    x: 461 + 90,
-                    y: 404,
+                    x: 400 - 80,
+                    y: 650 - 312,
                 },
-                96,
+                40,
                 "vert",
-            ),
-            this.view.addWire(
-                {
-                    x: 461 + 90,
-                    y: 404 + 96,
-                },
-                69,
-                "horz",
             ),
         ];
 
         this.qOutWires = [
             this.view.addWire(
                 {
-                    x: 890,
-                    y: 404,
+                    x: 868,
+                    y: 412.5,
                 },
-                120,
+                139,
+                "horz",
+            ),
+            this.view.addWire(
+                {
+                    x: 910,
+                    y: 412.5,
+                },
+                170,
+                "vert",
+            ),
+            this.view.addWire(
+                {
+                    x: 910,
+                    y: 412.5 + 170,
+                },
+                -715,
+                "horz",
+            ),
+            this.view.addWire(
+                {
+                    x: 910 - 715,
+                    y: 412.5 + 170,
+                },
+                -143,
+                "vert",
+            ),
+            this.view.addWire(
+                {
+                    x: 910 - 715,
+                    y: 412.5 + 170 - 143,
+                },
+                62,
                 "horz",
             ),
         ];
@@ -443,19 +449,25 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.view.addConnector(
                 {
                     x: 890 + 120,
-                    y: 404,
+                    y: 412.5,
                 },
                 !this.hideConnAndSwitch ? 6 : 0,
+            ),
+            this.view.addConnector(
+                {
+                    x: 890 + 20,
+                    y: 412.5,
+                },
             ),
         ];
 
         this.qInvOutWires = [
             this.view.addWire(
                 {
-                    x: 890,
-                    y: 476,
+                    x: 868,
+                    y: 455.5,
                 },
-                120,
+                139,
                 "horz",
             ),
         ];
@@ -464,7 +476,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.view.addConnector(
                 {
                     x: 890 + 120,
-                    y: 476,
+                    y: 455.5,
                 },
                 !this.hideConnAndSwitch ? 6 : 0,
             ),
@@ -473,7 +485,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
         if (!this.hideConnAndSwitch) {
             this.view.addText(
                 {
-                    x: 560,
+                    x: 669,
                     y: 210,
                 },
                 "CLK",
@@ -491,8 +503,17 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
             this.view.addText(
                 {
+                    x: 400,
+                    y: 695,
+                },
+                "EN",
+                {fontSize: 30}
+            );
+
+            this.view.addText(
+                {
                     x: 1050,
-                    y: 404,
+                    y: 412,
                 },
                 "Q",
                 {fontSize: 30}
@@ -501,7 +522,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.view.addText(
                 {
                     x: 1050,
-                    y: 476,
+                    y: 457,
                 },
                 "Q̅",
                 {fontSize: 30}
@@ -509,11 +530,20 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
             this.inpClkBitLabel = this.view.addText(
                 {
-                    x: 590,
+                    x: 699,
                     y: 260,
                 },
                 "",
                 {fontSize: 30}
+            );
+
+            this.inpEnblBitLabel = this.view.addText(
+                {
+                    x: 430,
+                    y: 640,
+                },
+                "",
+                {fontSize: 30},
             );
 
             this.inpDataBitLabel = this.view.addText(
@@ -528,7 +558,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.outQBitLabel = this.view.addText(
                 {
                     x: 1000,
-                    y: 380,
+                    y: 390,
                 },
                 "",
                 {fontSize: 30}
@@ -537,7 +567,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             this.outQInvBitLabel = this.view.addText(
                 {
                     x: 1000,
-                    y: 450,
+                    y: 483,
                 },
                 "",
                 {fontSize: 30}
@@ -548,7 +578,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
 
             const switchInpClk = this.view.addSwitch(
             {
-                x: 560,
+                x: 669,
                 y: 250,
             },
             12,
@@ -576,8 +606,21 @@ export class DFlipFlopCircuit extends LevelledCircuit {
             },
         );
 
+        const switchInpEnbl = this.view.addSwitch(
+            {
+                x: 400,
+                y: 650,
+            },
+            12,
+            (bit) => {
+                this.inpEnbl = bit;
+                this.update();
+            },
+        );
+
         this.view.setSwitchBit(switchInpClk.switchId, this.inpClk);
         this.view.setSwitchBit(switchInpData.switchId, this.inpData);
+        this.view.setSwitchBit(switchInpEnbl.switchId, this.inpEnbl);
         }
     }
 
@@ -586,7 +629,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
         this.setSignal(
             data,
             this.inpDataWires,
-            this.inpDataConns,
+            [],
         );
         if (this.inpDataBitLabel) this.view.setTextBitAnimated(this.inpDataBitLabel.textId, data);
 
@@ -594,18 +637,24 @@ export class DFlipFlopCircuit extends LevelledCircuit {
         this.setSignal(
             clk,
             this.inpClkWires,
-            this.inpClkConns,
+            [],
         );
         if (this.inpClkBitLabel) this.view.setTextBitAnimated(this.inpClkBitLabel.textId, clk);
-        
-        const clkInv = inverter(clk);
 
-        // leader latch
-        const [leaderOutputBit, _] = this.leaderStateElm.setInputs(clkInv, data);
-
-        // follower latch
-        const [q, qInv] = this.followerStateElm.setInputs(clk, leaderOutputBit);
+        const enabled = this.inpEnbl;
         this.setSignal(
+            enabled,
+            this.inpEnblWires,
+            [],
+        );
+
+        if (this.inpEnblBitLabel) this.view.setTextBitAnimated(this.inpEnblBitLabel.textId, enabled);
+
+        const prevData = this.stateElm.getQ();
+        const newSetData = mux2To1(prevData, data, enabled);
+        const [q, qInv] = this.stateElm.setInputs(clk, newSetData);
+
+         this.setSignal(
             q,
             this.qOutWires,
             this.qOutConns,
@@ -627,7 +676,7 @@ export class DFlipFlopCircuit extends LevelledCircuit {
         this.setSignal(
             data,
             this.inpDataWires,
-            this.inpDataConns,
+            [],
         );
         if (this.inpDataBitLabel) this.view.setTextBitAnimated(this.inpDataBitLabel.textId, data);
 
@@ -635,28 +684,24 @@ export class DFlipFlopCircuit extends LevelledCircuit {
         this.setSignal(
             clk,
             this.inpClkWires,
-            this.inpClkConns,
+            [],
         );
         if (this.inpClkBitLabel) this.view.setTextBitAnimated(this.inpClkBitLabel.textId, clk);
-        
-        const clkInv = inverter(clk);
+
+        const enabled = this.inpEnbl;
         this.setSignal(
-            clkInv,
-            this.clkInvWires,
+            enabled,
+            this.inpEnblWires,
             [],
         );
 
-        // leader latch
-        const [leaderOutputBit, _] = this.leaderStateElm.setInputs(clkInv, data);
-        this.setSignal(
-            leaderOutputBit,
-            this.leadrQOutWires,
-            [],
-        );
+        if (this.inpEnblBitLabel) this.view.setTextBitAnimated(this.inpEnblBitLabel.textId, enabled);
 
-        // follower latch
-        const [q, qInv] = this.followerStateElm.setInputs(clk, leaderOutputBit);
-        this.setSignal(
+        const prevData = this.stateElm.getQ();
+        const newSetData = this.mux.setInputs([prevData, data], [enabled]);
+        const [q, qInv] = this.stateElm.setInputs(clk, newSetData);
+
+         this.setSignal(
             q,
             this.qOutWires,
             this.qOutConns,

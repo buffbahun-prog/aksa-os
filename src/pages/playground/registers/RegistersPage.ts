@@ -1,11 +1,13 @@
 import { DFlipFlopCircuitCard } from "../../../playground/circuit-card/DFlipFlopCircuitCard";
 import { DLatchCircuitCard } from "../../../playground/circuit-card/DLatchCircuitCard";
+import { EnabledFlipFlopCircuitCard } from "../../../playground/circuit-card/EnabledFlipFlopCircuitCard";
 import { Page, type PageContext } from "../../../router/Page";
 
 export class RegistersPage extends Page {
 
     private readonly dLatchCard: DLatchCircuitCard;
     private readonly dFlipFlopCard: DFlipFlopCircuitCard;
+    private readonly enabledFlipFlopCard: EnabledFlipFlopCircuitCard;
 
 
     constructor(
@@ -48,6 +50,7 @@ export class RegistersPage extends Page {
 
         this.dLatchCard = new DLatchCircuitCard();
         this.dFlipFlopCard = new DFlipFlopCircuitCard();
+        this.enabledFlipFlopCard = new EnabledFlipFlopCircuitCard();
     }
 
 
@@ -77,6 +80,9 @@ export class RegistersPage extends Page {
             case "dflipflop":
                 card = this.dFlipFlopCard.getTemplateClone();
                 break;
+            case "enabledflipflop":
+                card = this.enabledFlipFlopCard.getTemplateClone();
+                break;
         }
 
         if (showCircuit) {
@@ -97,6 +103,7 @@ export class RegistersPage extends Page {
             const gatesList = [
                 {tmpl: this.dLatchCard.getTemplateClone(), h2: "D Latch"},
                 {tmpl: this.dFlipFlopCard.getTemplateClone(), h2: "D Flip-Flop"},
+                {tmpl: this.enabledFlipFlopCard.getTemplateClone(), h2: "Enabled Flip-Flop"},
             ];
             gatesList.forEach(gl => {
                 if (!gl.tmpl) return;
