@@ -752,8 +752,9 @@ export class EnabledFlipFlopCircuit extends LevelledCircuit {
         }
     }
 
-    setInputs(clk: Bit, data: Bit): [q: Bit, qInv: Bit] {
+    setInputs(clk: Bit, enable: Bit, data: Bit): [q: Bit, qInv: Bit] {
         this.inpClk = clk;
+        this.inpEnbl = enable;
         this.inpData = data;
         this.update();
         return this.finalResult;

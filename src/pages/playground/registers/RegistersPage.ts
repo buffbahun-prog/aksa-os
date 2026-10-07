@@ -1,6 +1,7 @@
 import { DFlipFlopCircuitCard } from "../../../playground/circuit-card/DFlipFlopCircuitCard";
 import { DLatchCircuitCard } from "../../../playground/circuit-card/DLatchCircuitCard";
 import { EnabledFlipFlopCircuitCard } from "../../../playground/circuit-card/EnabledFlipFlopCircuitCard";
+import { Register32BitCircuitCard } from "../../../playground/circuit-card/Register32BitCircuitCard";
 import { Page, type PageContext } from "../../../router/Page";
 
 export class RegistersPage extends Page {
@@ -8,6 +9,7 @@ export class RegistersPage extends Page {
     private readonly dLatchCard: DLatchCircuitCard;
     private readonly dFlipFlopCard: DFlipFlopCircuitCard;
     private readonly enabledFlipFlopCard: EnabledFlipFlopCircuitCard;
+    private readonly register32Card: Register32BitCircuitCard;
 
 
     constructor(
@@ -51,6 +53,7 @@ export class RegistersPage extends Page {
         this.dLatchCard = new DLatchCircuitCard();
         this.dFlipFlopCard = new DFlipFlopCircuitCard();
         this.enabledFlipFlopCard = new EnabledFlipFlopCircuitCard();
+        this.register32Card = new Register32BitCircuitCard();
     }
 
 
@@ -83,6 +86,9 @@ export class RegistersPage extends Page {
             case "enabledflipflop":
                 card = this.enabledFlipFlopCard.getTemplateClone();
                 break;
+            case "register32":
+                card = this.register32Card.getTemplateClone();
+                break;
         }
 
         if (showCircuit) {
@@ -104,6 +110,7 @@ export class RegistersPage extends Page {
                 {tmpl: this.dLatchCard.getTemplateClone(), h2: "D Latch"},
                 {tmpl: this.dFlipFlopCard.getTemplateClone(), h2: "D Flip-Flop"},
                 {tmpl: this.enabledFlipFlopCard.getTemplateClone(), h2: "Enabled Flip-Flop"},
+                {tmpl: this.register32Card.getTemplateClone(), h2: "Register 32 Bits"},
             ];
             gatesList.forEach(gl => {
                 if (!gl.tmpl) return;
