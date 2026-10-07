@@ -47,6 +47,15 @@ export class ShifterRotator8BitsCircuitCard
 
                     zoom: .26,
                 },
+
+                {
+                    position: {
+                        x: -150,
+                        y: 100,
+                    },
+
+                    zoom: .26,
+                },
             ],
 
         };

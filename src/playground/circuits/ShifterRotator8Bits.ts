@@ -78,7 +78,7 @@ export class ShifterRotator8BitsCircuit extends LevelledCircuit {
 
     constructor(hide = false) {
 
-        super(2);
+        super(3);
 
         this.hideConnAndSwitch = hide;
 
@@ -102,6 +102,7 @@ export class ShifterRotator8BitsCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.build1();
                 break;
         }
@@ -118,6 +119,7 @@ export class ShifterRotator8BitsCircuit extends LevelledCircuit {
                 break;
             case 1:
             case 2:
+            case 3:
                 this.update1();
                 break;
         }

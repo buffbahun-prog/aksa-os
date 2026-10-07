@@ -577,7 +577,6 @@ export class ALU1BitCircuit extends LevelledCircuit {
 
     private build1() {
         const level = this.level;
-        console.log(level);
 
         if (!this.hideConnAndSwitch) {
             this.inpWire1Label = this.view.addText(

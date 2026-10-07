@@ -22,11 +22,11 @@ export class Register32BitCircuitCard
             levels: [
                 {
                     position: {
-                        x: -100,
-                        y: 0,
+                        x: 2600,
+                        y: -1000,
                     },
 
-                    zoom: 1,
+                    zoom: .26,
                 },
 
                 {
