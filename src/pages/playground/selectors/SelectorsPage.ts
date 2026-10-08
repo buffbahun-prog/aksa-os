@@ -1,3 +1,4 @@
+import { Decoder5to32CircuitCard } from "../../../playground/circuit-card/Decoder5to32CircuitCard";
 import { Selector2to1CircuitCard } from "../../../playground/circuit-card/Selector2to1CircuitCard";
 import { Selector4to1CircuitCard } from "../../../playground/circuit-card/Selector4to1CircuitCard";
 import { Selector8Bit2to1CircuitCard } from "../../../playground/circuit-card/Selector8Bit2to1CircuitCard";
@@ -8,6 +9,7 @@ export class SelectorsPage extends Page {
     private readonly selector2to1Card: Selector2to1CircuitCard;
     private readonly selector4to1Card: Selector4to1CircuitCard;
     private readonly selector8Bit2to1Card: Selector8Bit2to1CircuitCard;
+    private readonly decoder5to32Card: Decoder5to32CircuitCard;
 
 
     constructor(
@@ -51,6 +53,7 @@ export class SelectorsPage extends Page {
         this.selector2to1Card = new Selector2to1CircuitCard();
         this.selector4to1Card = new Selector4to1CircuitCard();
         this.selector8Bit2to1Card = new Selector8Bit2to1CircuitCard();
+        this.decoder5to32Card = new Decoder5to32CircuitCard();
     }
 
 
@@ -83,6 +86,9 @@ export class SelectorsPage extends Page {
             case "selector8bit2to1":
                 card = this.selector8Bit2to1Card.getTemplateClone();
                 break;
+            case "decoder5to32":
+                card = this.decoder5to32Card.getTemplateClone();
+                break;
         }
 
         if (showCircuit) {
@@ -104,6 +110,7 @@ export class SelectorsPage extends Page {
                 {tmpl: this.selector2to1Card.getTemplateClone(), h2: "2 to 1 Selector"},
                 {tmpl: this.selector4to1Card.getTemplateClone(), h2: "4 to 1 Selector"},
                 {tmpl: this.selector8Bit2to1Card.getTemplateClone(), h2: "8 Bit 2 to 1 Selector"},
+                {tmpl: this.decoder5to32Card.getTemplateClone(), h2: "5 to 32 Decoder"},
             ];
             gatesList.forEach(gl => {
                 if (!gl.tmpl) return;
